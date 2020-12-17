@@ -15,14 +15,14 @@
   *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_LPTIM_EX_H
 #define __STM32L0xx_HAL_LPTIM_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -34,7 +34,7 @@
 
 /** @defgroup LPTIMEx LPTIMEx
   * @{
-  */ 
+  */
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -63,13 +63,13 @@
   * @}
   */
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 
-   /** @addtogroup LPTIMEx_Private
-  * @{
-  */
+/** @addtogroup LPTIMEx_Private
+* @{
+*/
 #if defined(RTC_TAMPER3_SUPPORT) && defined(COMP1) && defined(COMP2)
 #define IS_LPTIM_TRG_SOURCE(__TRIG__)           (((__TRIG__) == LPTIM_TRIGSOURCE_SOFTWARE) || \
                                                  ((__TRIG__) == LPTIM_TRIGSOURCE_0) || \

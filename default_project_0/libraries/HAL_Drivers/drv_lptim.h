@@ -13,11 +13,11 @@
 
 #include <rtthread.h>
 
-rt_uint32_t stm32l4_lptim_get_countfreq(void);
-rt_uint32_t stm32l4_lptim_get_tick_max(void);
-rt_uint32_t stm32l4_lptim_get_current_tick(void);
+rt_uint32_t stm32l4_lptim_get_countfreq( void );
+rt_uint32_t stm32l4_lptim_get_tick_max( void );
+rt_uint32_t stm32l4_lptim_get_current_tick( void );
 
-rt_err_t stm32l4_lptim_start(rt_uint32_t load);
-void stm32l4_lptim_stop(void);
+rt_err_t stm32l4_lptim_start( rt_uint32_t load );
+void stm32l4_lptim_stop( void );
 
 #endif /* __DRV_PMTIMER_H__ */

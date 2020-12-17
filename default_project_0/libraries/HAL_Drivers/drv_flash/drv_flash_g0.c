@@ -15,7 +15,7 @@
 #include "drv_flash.h"
 
 #if defined(PKG_USING_FAL)
-#include "fal.h"
+    #include "fal.h"
 #endif
 
 // #define DRV_DEBUG
@@ -27,10 +27,10 @@
   * @param  Addr: Address of the FLASH Memory
   * @retval The page of a given address
   */
-static uint32_t GetPage(uint32_t addr)
+static uint32_t GetPage( uint32_t addr )
 {
     uint32_t page = 0;
-    page = RT_ALIGN_DOWN(addr-STM32_FLASH_START_ADRESS, FLASH_PAGE_SIZE)/FLASH_PAGE_SIZE;
+    page = RT_ALIGN_DOWN( addr - STM32_FLASH_START_ADRESS, FLASH_PAGE_SIZE ) / FLASH_PAGE_SIZE;
     return page;
 }
 
@@ -44,19 +44,19 @@ static uint32_t GetPage(uint32_t addr)
  *
  * @return result
  */
-int stm32_flash_read(rt_uint32_t addr, rt_uint8_t *buf, size_t size)
+int stm32_flash_read( rt_uint32_t addr, rt_uint8_t *buf, size_t size )
 {
     size_t i;
 
-    if ((addr + size) > STM32_FLASH_END_ADDRESS)
+    if( ( addr + size ) > STM32_FLASH_END_ADDRESS )
     {
-        LOG_E("read outrange flash size! addr is (0x%p)", (void *)(addr + size));
+        LOG_E( "read outrange flash size! addr is (0x%p)", ( void * )( addr + size ) );
         return -RT_EINVAL;
     }
 
-    for (i = 0; i < size; i++, buf++, addr++)
+    for( i = 0; i < size; i++, buf++, addr++ )
     {
-        *buf = *(rt_uint8_t *) addr;
+        *buf = *( rt_uint8_t * ) addr;
     }
 
     return size;
@@ -73,61 +73,61 @@ int stm32_flash_read(rt_uint32_t addr, rt_uint8_t *buf, size_t size)
  *
  * @return result
  */
-int stm32_flash_write(rt_uint32_t addr, const uint8_t *buf, size_t size)
+int stm32_flash_write( rt_uint32_t addr, const uint8_t *buf, size_t size )
 {
     size_t i, j;
     rt_err_t result = 0;
     rt_uint64_t write_data = 0, temp_data = 0;
 
-    if ((addr + size) > STM32_FLASH_END_ADDRESS)
+    if( ( addr + size ) > STM32_FLASH_END_ADDRESS )
     {
-        LOG_E("ERROR: write outrange flash size! addr is (0x%p)\n", (void*)(addr + size));
+        LOG_E( "ERROR: write outrange flash size! addr is (0x%p)\n", ( void * )( addr + size ) );
         return -RT_EINVAL;
     }
 
-    if(addr % 8 != 0)
+    if( addr % 8 != 0 )
     {
-        LOG_E("write addr must be 8-byte alignment");
+        LOG_E( "write addr must be 8-byte alignment" );
         return -RT_EINVAL;
     }
 
     HAL_FLASH_Unlock();
 
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGSERR);
+    __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGSERR );
 
-    if (size < 1)
+    if( size < 1 )
     {
         return -RT_ERROR;
     }
 
-    for (i = 0; i < size;)
+    for( i = 0; i < size; )
     {
-        if ((size - i) < 8)
+        if( ( size - i ) < 8 )
         {
-            for (j = 0; (size - i) > 0; i++, j++)
+            for( j = 0; ( size - i ) > 0; i++, j++ )
             {
                 temp_data = *buf;
-                write_data = (write_data) | (temp_data << 8 * j);
+                write_data = ( write_data ) | ( temp_data << 8 * j );
                 buf ++;
             }
         }
         else
         {
-            for (j = 0; j < 8; j++, i++)
+            for( j = 0; j < 8; j++, i++ )
             {
                 temp_data = *buf;
-                write_data = (write_data) | (temp_data << 8 * j);
+                write_data = ( write_data ) | ( temp_data << 8 * j );
                 buf ++;
             }
         }
 
         /* write data */
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr, write_data) == HAL_OK)
+        if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_DOUBLEWORD, addr, write_data ) == HAL_OK )
         {
             /* Check the written value */
-            if (*(uint64_t*)addr != write_data)
+            if( *( uint64_t * )addr != write_data )
             {
-                LOG_E("ERROR: write data != read data\n");
+                LOG_E( "ERROR: write data != read data\n" );
                 result = -RT_ERROR;
                 goto __exit;
             }
@@ -146,7 +146,8 @@ int stm32_flash_write(rt_uint32_t addr, const uint8_t *buf, size_t size)
 
 __exit:
     HAL_FLASH_Lock();
-    if (result != 0)
+
+    if( result != 0 )
     {
         return result;
     }
@@ -164,7 +165,7 @@ __exit:
  *
  * @return result
  */
-int stm32_flash_erase(rt_uint32_t addr, size_t size)
+int stm32_flash_erase( rt_uint32_t addr, size_t size )
 {
     rt_err_t result = RT_EOK;
     uint32_t PAGEError = 0;
@@ -172,9 +173,9 @@ int stm32_flash_erase(rt_uint32_t addr, size_t size)
     /*Variable used for Erase procedure*/
     FLASH_EraseInitTypeDef EraseInitStruct;
 
-    if ((addr + size) > STM32_FLASH_END_ADDRESS)
+    if( ( addr + size ) > STM32_FLASH_END_ADDRESS )
     {
-        LOG_E("ERROR: erase outrange flash size! addr is (0x%p)\n", (void *)(addr + size));
+        LOG_E( "ERROR: erase outrange flash size! addr is (0x%p)\n", ( void * )( addr + size ) );
         return -RT_EINVAL;
     }
 
@@ -182,10 +183,10 @@ int stm32_flash_erase(rt_uint32_t addr, size_t size)
 
     /* Fill EraseInit structure*/
     EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
-    EraseInitStruct.Page        = GetPage(addr);
-    EraseInitStruct.NbPages     = (size + FLASH_PAGE_SIZE - 1) / FLASH_PAGE_SIZE;
+    EraseInitStruct.Page        = GetPage( addr );
+    EraseInitStruct.NbPages     = ( size + FLASH_PAGE_SIZE - 1 ) / FLASH_PAGE_SIZE;
 
-    if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK)
+    if( HAL_FLASHEx_Erase( &EraseInitStruct, &PAGEError ) != HAL_OK )
     {
         result = -RT_ERROR;
         goto __exit;
@@ -194,36 +195,36 @@ int stm32_flash_erase(rt_uint32_t addr, size_t size)
 __exit:
     HAL_FLASH_Lock();
 
-    if (result != RT_EOK)
+    if( result != RT_EOK )
     {
         return result;
     }
 
-    LOG_D("erase done: addr (0x%p), size %d", (void *)addr, size);
+    LOG_D( "erase done: addr (0x%p), size %d", ( void * )addr, size );
     return size;
 }
 
 #if defined(PKG_USING_FAL)
 
-static int fal_flash_read(long offset, rt_uint8_t *buf, size_t size);
-static int fal_flash_write(long offset, const rt_uint8_t *buf, size_t size);
-static int fal_flash_erase(long offset, size_t size);
+static int fal_flash_read( long offset, rt_uint8_t *buf, size_t size );
+static int fal_flash_write( long offset, const rt_uint8_t *buf, size_t size );
+static int fal_flash_erase( long offset, size_t size );
 
 const struct fal_flash_dev stm32_onchip_flash = { "onchip_flash", STM32_FLASH_START_ADRESS, STM32_FLASH_SIZE, FLASH_PAGE_SIZE, {NULL, fal_flash_read, fal_flash_write, fal_flash_erase} };
 
-static int fal_flash_read(long offset, rt_uint8_t *buf, size_t size)
+static int fal_flash_read( long offset, rt_uint8_t *buf, size_t size )
 {
-    return stm32_flash_read(stm32_onchip_flash.addr + offset, buf, size);
+    return stm32_flash_read( stm32_onchip_flash.addr + offset, buf, size );
 }
 
-static int fal_flash_write(long offset, const rt_uint8_t *buf, size_t size)
+static int fal_flash_write( long offset, const rt_uint8_t *buf, size_t size )
 {
-    return stm32_flash_write(stm32_onchip_flash.addr + offset, buf, size);
+    return stm32_flash_write( stm32_onchip_flash.addr + offset, buf, size );
 }
 
-static int fal_flash_erase(long offset, size_t size)
+static int fal_flash_erase( long offset, size_t size )
 {
-    return stm32_flash_erase(stm32_onchip_flash.addr + offset, size);
+    return stm32_flash_erase( stm32_onchip_flash.addr + offset, size );
 }
 
 #endif

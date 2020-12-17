@@ -21,42 +21,42 @@
 #include <drivers/sdio.h>
 
 #if defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4)
-#define SDCARD_INSTANCE_TYPE              SDIO_TypeDef
+    #define SDCARD_INSTANCE_TYPE              SDIO_TypeDef
 #elif defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32F7)
-#define SDCARD_INSTANCE_TYPE              SDMMC_TypeDef
+    #define SDCARD_INSTANCE_TYPE              SDMMC_TypeDef
 #endif /*  defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F4) */
 
 #if defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4)
-#define SDCARD_INSTANCE                   SDIO
+    #define SDCARD_INSTANCE                   SDIO
 #elif defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32F7)
-#define SDCARD_INSTANCE                   SDMMC1
+    #define SDCARD_INSTANCE                   SDMMC1
 #endif /*  defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F4) */
 
 #define SDIO_BUFF_SIZE       4096
 #define SDIO_ALIGN_LEN       32
 
 #ifndef SDIO_MAX_FREQ
-#define SDIO_MAX_FREQ        (1000000)
+    #define SDIO_MAX_FREQ        (1000000)
 #endif
 
 #ifndef SDIO_BASE_ADDRESS
-#define SDIO_BASE_ADDRESS    (0x40012800U)
+    #define SDIO_BASE_ADDRESS    (0x40012800U)
 #endif
 
 #ifndef SDIO_CLOCK_FREQ
-#define SDIO_CLOCK_FREQ      (48U * 1000 * 1000)
+    #define SDIO_CLOCK_FREQ      (48U * 1000 * 1000)
 #endif
 
 #ifndef SDIO_BUFF_SIZE
-#define SDIO_BUFF_SIZE       (4096)
+    #define SDIO_BUFF_SIZE       (4096)
 #endif
 
 #ifndef SDIO_ALIGN_LEN
-#define SDIO_ALIGN_LEN       (32)
+    #define SDIO_ALIGN_LEN       (32)
 #endif
 
 #ifndef SDIO_MAX_FREQ
-#define SDIO_MAX_FREQ        (24 * 1000 * 1000)
+    #define SDIO_MAX_FREQ        (24 * 1000 * 1000)
 #endif
 
 #define HW_SDIO_IT_CCRCFAIL                    (0x01U << 0)
@@ -160,9 +160,9 @@ struct stm32_sdio
     volatile rt_uint32_t fifo;
 };
 
-typedef rt_err_t (*dma_txconfig)(rt_uint32_t *src, rt_uint32_t *dst, int size);
-typedef rt_err_t (*dma_rxconfig)(rt_uint32_t *src, rt_uint32_t *dst, int size);
-typedef rt_uint32_t (*sdio_clk_get)(struct stm32_sdio *hw_sdio);
+typedef rt_err_t ( *dma_txconfig )( rt_uint32_t *src, rt_uint32_t *dst, int size );
+typedef rt_err_t ( *dma_rxconfig )( rt_uint32_t *src, rt_uint32_t *dst, int size );
+typedef rt_uint32_t ( *sdio_clk_get )( struct stm32_sdio *hw_sdio );
 
 struct stm32_sdio_des
 {
@@ -191,6 +191,6 @@ struct stm32_sdio_class
     } dma;
 };
 
-extern void stm32_mmcsd_change(void);
+extern void stm32_mmcsd_change( void );
 
 #endif

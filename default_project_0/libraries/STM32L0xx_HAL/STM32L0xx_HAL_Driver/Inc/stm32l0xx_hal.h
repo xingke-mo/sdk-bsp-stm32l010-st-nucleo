@@ -23,7 +23,7 @@
 #define __STM32L0xx_HAL_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -140,9 +140,9 @@
 /**
  * @}
  */
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 
 /* Exported macros -----------------------------------------------------------*/
 /** @defgroup HAL_Exported_Macros HAL Exported Macros
@@ -368,11 +368,11 @@ extern __IO uint32_t uwTick;
  *  @brief    Initialization and de-initialization functions
  * @{
   */
-HAL_StatusTypeDef HAL_Init(void);
-HAL_StatusTypeDef HAL_DeInit(void);
-void HAL_MspInit(void);
-void HAL_MspDeInit(void);
-HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority);
+HAL_StatusTypeDef HAL_Init( void );
+HAL_StatusTypeDef HAL_DeInit( void );
+void HAL_MspInit( void );
+void HAL_MspDeInit( void );
+HAL_StatusTypeDef HAL_InitTick( uint32_t TickPriority );
 
 /**
   * @}
@@ -382,17 +382,17 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority);
   * @brief    Peripheral Control functions
   * @{
   */
-void HAL_IncTick(void);
-void HAL_Delay(uint32_t Delay);
-uint32_t HAL_GetTick(void);
-void HAL_SuspendTick(void);
-void HAL_ResumeTick(void);
-uint32_t HAL_GetHalVersion(void);
-uint32_t HAL_GetREVID(void);
-uint32_t HAL_GetDEVID(void);
-uint32_t HAL_GetUIDw0(void);
-uint32_t HAL_GetUIDw1(void);
-uint32_t HAL_GetUIDw2(void);
+void HAL_IncTick( void );
+void HAL_Delay( uint32_t Delay );
+uint32_t HAL_GetTick( void );
+void HAL_SuspendTick( void );
+void HAL_ResumeTick( void );
+uint32_t HAL_GetHalVersion( void );
+uint32_t HAL_GetREVID( void );
+uint32_t HAL_GetDEVID( void );
+uint32_t HAL_GetUIDw0( void );
+uint32_t HAL_GetUIDw1( void );
+uint32_t HAL_GetUIDw2( void );
 /**
   * @}
   */
@@ -401,14 +401,14 @@ uint32_t HAL_GetUIDw2(void);
   * @brief    DBGMCU Peripheral Control functions
   * @{
   */
-void HAL_DBGMCU_EnableDBGSleepMode(void);
-void HAL_DBGMCU_DisableDBGSleepMode(void);
-void HAL_DBGMCU_EnableDBGStopMode(void);
-void HAL_DBGMCU_DisableDBGStopMode(void);
-void HAL_DBGMCU_EnableDBGStandbyMode(void);
-void HAL_DBGMCU_DisableDBGStandbyMode(void);
-void HAL_DBGMCU_DBG_EnableLowPowerConfig(uint32_t Periph);
-void HAL_DBGMCU_DBG_DisableLowPowerConfig(uint32_t Periph);
+void HAL_DBGMCU_EnableDBGSleepMode( void );
+void HAL_DBGMCU_DisableDBGSleepMode( void );
+void HAL_DBGMCU_EnableDBGStopMode( void );
+void HAL_DBGMCU_DisableDBGStopMode( void );
+void HAL_DBGMCU_EnableDBGStandbyMode( void );
+void HAL_DBGMCU_DisableDBGStandbyMode( void );
+void HAL_DBGMCU_DBG_EnableLowPowerConfig( uint32_t Periph );
+void HAL_DBGMCU_DBG_DisableLowPowerConfig( uint32_t Periph );
 /**
   * @}
   */
@@ -417,10 +417,10 @@ void HAL_DBGMCU_DBG_DisableLowPowerConfig(uint32_t Periph);
   * @brief    SYSCFG Peripheral Control functions
   * @{
   */
-uint32_t  HAL_SYSCFG_GetBootMode(void);
-void HAL_SYSCFG_Enable_Lock_VREFINT(void);
-void HAL_SYSCFG_Disable_Lock_VREFINT(void);
-void HAL_SYSCFG_VREFINT_OutputSelect(uint32_t SYSCFG_Vrefint_OUTPUT);
+uint32_t  HAL_SYSCFG_GetBootMode( void );
+void HAL_SYSCFG_Enable_Lock_VREFINT( void );
+void HAL_SYSCFG_Disable_Lock_VREFINT( void );
+void HAL_SYSCFG_VREFINT_OutputSelect( uint32_t SYSCFG_Vrefint_OUTPUT );
 /**
   * @}
   */

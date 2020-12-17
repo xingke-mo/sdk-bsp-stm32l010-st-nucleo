@@ -13,12 +13,12 @@
 
 static LPTIM_HandleTypeDef LptimHandle;
 
-void LPTIM1_IRQHandler(void)
+void LPTIM1_IRQHandler( void )
 {
-    HAL_LPTIM_IRQHandler(&LptimHandle);
+    HAL_LPTIM_IRQHandler( &LptimHandle );
 }
 
-void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim)
+void HAL_LPTIM_CompareMatchCallback( LPTIM_HandleTypeDef *hlptim )
 {
     /* enter interrupt */
     rt_interrupt_enter();
@@ -32,9 +32,9 @@ void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim)
  *
  * @return the count vlaue
  */
-rt_uint32_t stm32l4_lptim_get_current_tick(void)
+rt_uint32_t stm32l4_lptim_get_current_tick( void )
 {
-    return HAL_LPTIM_ReadCounter(&LptimHandle);
+    return HAL_LPTIM_ReadCounter( &LptimHandle );
 }
 
 /**
@@ -42,9 +42,9 @@ rt_uint32_t stm32l4_lptim_get_current_tick(void)
  *
  * @return the max count
  */
-rt_uint32_t stm32l4_lptim_get_tick_max(void)
+rt_uint32_t stm32l4_lptim_get_tick_max( void )
 {
-    return (0xFFFF);
+    return ( 0xFFFF );
 }
 
 /**
@@ -54,17 +54,17 @@ rt_uint32_t stm32l4_lptim_get_tick_max(void)
  *
  * @return RT_EOK
  */
-rt_err_t stm32l4_lptim_start(rt_uint32_t reload)
+rt_err_t stm32l4_lptim_start( rt_uint32_t reload )
 {
-    HAL_LPTIM_TimeOut_Start_IT(&LptimHandle, 0xFFFF, reload);
+    HAL_LPTIM_TimeOut_Start_IT( &LptimHandle, 0xFFFF, reload );
 
-    return (RT_EOK);
+    return ( RT_EOK );
 }
 
 /**
  * This function stop LPTIM
  */
-void stm32l4_lptim_stop(void)
+void stm32l4_lptim_stop( void )
 {
     rt_uint32_t _ier;
 
@@ -77,7 +77,7 @@ void stm32l4_lptim_stop(void)
  *
  * @return the count clock frequency in Hz
  */
-rt_uint32_t stm32l4_lptim_get_countfreq(void)
+rt_uint32_t stm32l4_lptim_get_countfreq( void )
 {
     return 32000 / 32;
 }
@@ -85,7 +85,7 @@ rt_uint32_t stm32l4_lptim_get_countfreq(void)
 /**
  * This function initialize the lptim
  */
-int stm32l4_hw_lptim_init(void)
+int stm32l4_hw_lptim_init( void )
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = {0};
@@ -94,12 +94,12 @@ int stm32l4_hw_lptim_init(void)
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
     RCC_OscInitStruct.LSIState = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-    HAL_RCC_OscConfig(&RCC_OscInitStruct);
+    HAL_RCC_OscConfig( &RCC_OscInitStruct );
 
     /* Select the LSI clock as LPTIM peripheral clock */
     RCC_PeriphCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPTIM1;
     RCC_PeriphCLKInitStruct.Lptim1ClockSelection = RCC_LPTIM1CLKSOURCE_LSI;
-    HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphCLKInitStruct);
+    HAL_RCCEx_PeriphCLKConfig( &RCC_PeriphCLKInitStruct );
 
     LptimHandle.Instance = LPTIM1;
     LptimHandle.Init.Clock.Source = LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC;
@@ -108,16 +108,17 @@ int stm32l4_hw_lptim_init(void)
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
     LptimHandle.Init.UpdateMode = LPTIM_UPDATE_IMMEDIATE;
     LptimHandle.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;
-    if (HAL_LPTIM_Init(&LptimHandle) != HAL_OK)
+
+    if( HAL_LPTIM_Init( &LptimHandle ) != HAL_OK )
     {
         return -1;
     }
 
-    NVIC_ClearPendingIRQ(LPTIM1_IRQn);
-    NVIC_SetPriority(LPTIM1_IRQn, 0);
-    NVIC_EnableIRQ(LPTIM1_IRQn);
+    NVIC_ClearPendingIRQ( LPTIM1_IRQn );
+    NVIC_SetPriority( LPTIM1_IRQn, 0 );
+    NVIC_EnableIRQ( LPTIM1_IRQn );
 
     return 0;
 }
 
-INIT_DEVICE_EXPORT(stm32l4_hw_lptim_init);
+INIT_DEVICE_EXPORT( stm32l4_hw_lptim_init );

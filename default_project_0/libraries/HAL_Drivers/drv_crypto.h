@@ -11,6 +11,6 @@
 #ifndef __DRV_CRYPTO_H__
 #define __DRV_CRYPTO_H__
 
-int l4_hw_crypto_device_init(void);
+int l4_hw_crypto_device_init( void );
 
 #endif /* __DRV_CRYPTO_H__ */

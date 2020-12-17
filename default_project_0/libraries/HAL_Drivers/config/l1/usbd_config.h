@@ -18,10 +18,10 @@
 #define USBD_PCD_PHY_MODULE  PCD_PHY_EMBEDDED
 
 #ifndef BSP_USB_CONNECT_PIN
-#define BSP_USB_CONNECT_PIN  -1
+    #define BSP_USB_CONNECT_PIN  -1
 #endif
 
 #ifndef BSP_USB_PULL_UP_STATUS
-#define BSP_USB_PULL_UP_STATUS  1
+    #define BSP_USB_PULL_UP_STATUS  1
 #endif
 #endif

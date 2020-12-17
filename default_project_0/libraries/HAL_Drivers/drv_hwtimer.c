@@ -155,82 +155,93 @@ static struct stm32_hwtimer stm32_hwtimer_obj[] =
 };
 
 /* APBx timer clocks frequency doubler state related to APB1CLKDivider value */
-static void pclkx_doubler_get(rt_uint32_t *pclk1_doubler, rt_uint32_t *pclk2_doubler)
+static void pclkx_doubler_get( rt_uint32_t *pclk1_doubler, rt_uint32_t *pclk2_doubler )
 {
     rt_uint32_t flatency = 0;
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-    RT_ASSERT(pclk1_doubler != RT_NULL);
-    RT_ASSERT(pclk1_doubler != RT_NULL);
+    RT_ASSERT( pclk1_doubler != RT_NULL );
+    RT_ASSERT( pclk1_doubler != RT_NULL );
 
-    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &flatency);
+    HAL_RCC_GetClockConfig( &RCC_ClkInitStruct, &flatency );
 
     *pclk1_doubler = 1;
     *pclk2_doubler = 1;
 
 #if defined(SOC_SERIES_STM32MP1)
-    if (RCC_ClkInitStruct.APB1_Div != RCC_APB1_DIV1)
+
+    if( RCC_ClkInitStruct.APB1_Div != RCC_APB1_DIV1 )
     {
         *pclk1_doubler = 2;
     }
-    if (RCC_ClkInitStruct.APB2_Div != RCC_APB2_DIV1)
+
+    if( RCC_ClkInitStruct.APB2_Div != RCC_APB2_DIV1 )
     {
-       *pclk2_doubler = 2; 
+        *pclk2_doubler = 2;
     }
+
 #else
-    if (RCC_ClkInitStruct.APB1CLKDivider != RCC_HCLK_DIV1)    
+
+    if( RCC_ClkInitStruct.APB1CLKDivider != RCC_HCLK_DIV1 )
     {
-         *pclk1_doubler = 2;
+        *pclk1_doubler = 2;
     }
+
 #if !defined(SOC_SERIES_STM32F0) && !defined(SOC_SERIES_STM32G0)
-    if (RCC_ClkInitStruct.APB2CLKDivider != RCC_HCLK_DIV1)
+
+    if( RCC_ClkInitStruct.APB2CLKDivider != RCC_HCLK_DIV1 )
     {
-         *pclk2_doubler = 2;
+        *pclk2_doubler = 2;
     }
+
 #endif
 #endif
 }
 
-static void timer_init(struct rt_hwtimer_device *timer, rt_uint32_t state)
+static void timer_init( struct rt_hwtimer_device *timer, rt_uint32_t state )
 {
     uint32_t prescaler_value = 0;
     uint32_t pclk1_doubler, pclk2_doubler;
     TIM_HandleTypeDef *tim = RT_NULL;
     struct stm32_hwtimer *tim_device = RT_NULL;
 
-    RT_ASSERT(timer != RT_NULL);
-    if (state)
-    {
-        tim = (TIM_HandleTypeDef *)timer->parent.user_data;
-        tim_device = (struct stm32_hwtimer *)timer;
+    RT_ASSERT( timer != RT_NULL );
 
-        pclkx_doubler_get(&pclk1_doubler, &pclk2_doubler);
+    if( state )
+    {
+        tim = ( TIM_HandleTypeDef * )timer->parent.user_data;
+        tim_device = ( struct stm32_hwtimer * )timer;
+
+        pclkx_doubler_get( &pclk1_doubler, &pclk2_doubler );
 
         /* time init */
 #if defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
-        if (tim->Instance == TIM9 || tim->Instance == TIM10 || tim->Instance == TIM11)
+
+        if( tim->Instance == TIM9 || tim->Instance == TIM10 || tim->Instance == TIM11 )
 #elif defined(SOC_SERIES_STM32L4)
-        if (tim->Instance == TIM15 || tim->Instance == TIM16 || tim->Instance == TIM17)
+        if( tim->Instance == TIM15 || tim->Instance == TIM16 || tim->Instance == TIM17 )
 #elif defined(SOC_SERIES_STM32WB)
-        if (tim->Instance == TIM16 || tim->Instance == TIM17)
+        if( tim->Instance == TIM16 || tim->Instance == TIM17 )
 #elif defined(SOC_SERIES_STM32MP1)
-       if(tim->Instance == TIM14 || tim->Instance == TIM16 || tim->Instance == TIM17)
+        if( tim->Instance == TIM14 || tim->Instance == TIM16 || tim->Instance == TIM17 )
 #elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0)
-        if (0)
+        if( 0 )
 #endif
         {
 #if !defined(SOC_SERIES_STM32F0) && !defined(SOC_SERIES_STM32G0)
-            prescaler_value = (uint32_t)(HAL_RCC_GetPCLK2Freq() * pclk2_doubler / 10000) - 1;
+            prescaler_value = ( uint32_t )( HAL_RCC_GetPCLK2Freq() * pclk2_doubler / 10000 ) - 1;
 #endif
         }
         else
         {
-            prescaler_value = (uint32_t)(HAL_RCC_GetPCLK1Freq() * pclk1_doubler / 10000) - 1;
+            prescaler_value = ( uint32_t )( HAL_RCC_GetPCLK1Freq() * pclk1_doubler / 10000 ) - 1;
         }
+
         tim->Init.Period            = 10000 - 1;
         tim->Init.Prescaler         = prescaler_value;
         tim->Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-        if (timer->info->cntmode == HWTIMER_CNTMODE_UP)
+
+        if( timer->info->cntmode == HWTIMER_CNTMODE_UP )
         {
             tim->Init.CounterMode   = TIM_COUNTERMODE_UP;
         }
@@ -238,148 +249,153 @@ static void timer_init(struct rt_hwtimer_device *timer, rt_uint32_t state)
         {
             tim->Init.CounterMode   = TIM_COUNTERMODE_DOWN;
         }
+
         tim->Init.RepetitionCounter = 0;
 #if defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0) || defined(SOC_SERIES_STM32MP1) || defined(SOC_SERIES_STM32WB)
         tim->Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 #endif
-        if (HAL_TIM_Base_Init(tim) != HAL_OK)
+
+        if( HAL_TIM_Base_Init( tim ) != HAL_OK )
         {
-            LOG_E("%s init failed", tim_device->name);
+            LOG_E( "%s init failed", tim_device->name );
             return;
         }
         else
         {
             /* set the TIMx priority */
-            HAL_NVIC_SetPriority(tim_device->tim_irqn, 3, 0);
+            HAL_NVIC_SetPriority( tim_device->tim_irqn, 3, 0 );
 
             /* enable the TIMx global Interrupt */
-            HAL_NVIC_EnableIRQ(tim_device->tim_irqn);
+            HAL_NVIC_EnableIRQ( tim_device->tim_irqn );
 
             /* clear update flag */
-            __HAL_TIM_CLEAR_FLAG(tim, TIM_FLAG_UPDATE);
+            __HAL_TIM_CLEAR_FLAG( tim, TIM_FLAG_UPDATE );
             /* enable update request source */
-            __HAL_TIM_URS_ENABLE(tim);
+            __HAL_TIM_URS_ENABLE( tim );
 
-            LOG_D("%s init success", tim_device->name);
+            LOG_D( "%s init success", tim_device->name );
         }
     }
 }
 
-static rt_err_t timer_start(rt_hwtimer_t *timer, rt_uint32_t t, rt_hwtimer_mode_t opmode)
+static rt_err_t timer_start( rt_hwtimer_t *timer, rt_uint32_t t, rt_hwtimer_mode_t opmode )
 {
     rt_err_t result = RT_EOK;
     TIM_HandleTypeDef *tim = RT_NULL;
 
-    RT_ASSERT(timer != RT_NULL);
+    RT_ASSERT( timer != RT_NULL );
 
-    tim = (TIM_HandleTypeDef *)timer->parent.user_data;
+    tim = ( TIM_HandleTypeDef * )timer->parent.user_data;
 
     /* set tim cnt */
-    __HAL_TIM_SET_COUNTER(tim, 0);
+    __HAL_TIM_SET_COUNTER( tim, 0 );
     /* set tim arr */
-    __HAL_TIM_SET_AUTORELOAD(tim, t - 1);
+    __HAL_TIM_SET_AUTORELOAD( tim, t - 1 );
 
-    if (opmode == HWTIMER_MODE_ONESHOT)
+    if( opmode == HWTIMER_MODE_ONESHOT )
     {
         /* set timer to single mode */
         tim->Instance->CR1 |= TIM_OPMODE_SINGLE;
     }
     else
     {
-        tim->Instance->CR1 &= (~TIM_OPMODE_SINGLE);
+        tim->Instance->CR1 &= ( ~TIM_OPMODE_SINGLE );
     }
-	
+
     /* start timer */
-    if (HAL_TIM_Base_Start_IT(tim) != HAL_OK)
+    if( HAL_TIM_Base_Start_IT( tim ) != HAL_OK )
     {
-        LOG_E("TIM start failed");
+        LOG_E( "TIM start failed" );
         result = -RT_ERROR;
     }
 
     return result;
 }
 
-static void timer_stop(rt_hwtimer_t *timer)
+static void timer_stop( rt_hwtimer_t *timer )
 {
     TIM_HandleTypeDef *tim = RT_NULL;
 
-    RT_ASSERT(timer != RT_NULL);
+    RT_ASSERT( timer != RT_NULL );
 
-    tim = (TIM_HandleTypeDef *)timer->parent.user_data;
+    tim = ( TIM_HandleTypeDef * )timer->parent.user_data;
 
     /* stop timer */
-    HAL_TIM_Base_Stop_IT(tim);
+    HAL_TIM_Base_Stop_IT( tim );
 
     /* set tim cnt */
-    __HAL_TIM_SET_COUNTER(tim, 0);
+    __HAL_TIM_SET_COUNTER( tim, 0 );
 }
 
-static rt_err_t timer_ctrl(rt_hwtimer_t *timer, rt_uint32_t cmd, void *arg)
+static rt_err_t timer_ctrl( rt_hwtimer_t *timer, rt_uint32_t cmd, void *arg )
 {
     TIM_HandleTypeDef *tim = RT_NULL;
     rt_err_t result = RT_EOK;
     uint32_t pclk1_doubler, pclk2_doubler;
 
-    RT_ASSERT(timer != RT_NULL);
-    RT_ASSERT(arg != RT_NULL);
+    RT_ASSERT( timer != RT_NULL );
+    RT_ASSERT( arg != RT_NULL );
 
-    tim = (TIM_HandleTypeDef *)timer->parent.user_data;
+    tim = ( TIM_HandleTypeDef * )timer->parent.user_data;
 
-    switch (cmd)
+    switch( cmd )
     {
     case HWTIMER_CTRL_FREQ_SET:
-    {
-        rt_uint32_t freq;
-        rt_uint16_t val;
+        {
+            rt_uint32_t freq;
+            rt_uint16_t val;
 
-        /* set timer frequence */
-        freq = *((rt_uint32_t *)arg);
+            /* set timer frequence */
+            freq = *( ( rt_uint32_t * )arg );
 
-        pclkx_doubler_get(&pclk1_doubler, &pclk2_doubler);
+            pclkx_doubler_get( &pclk1_doubler, &pclk2_doubler );
 
 #if defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
-        if (tim->Instance == TIM9 || tim->Instance == TIM10 || tim->Instance == TIM11)
-#elif defined(SOC_SERIES_STM32L4)
-        if (tim->Instance == TIM15 || tim->Instance == TIM16 || tim->Instance == TIM17)
-#elif defined(SOC_SERIES_STM32WB)
-        if (tim->Instance == TIM16 || tim->Instance == TIM17)
-			#elif defined(SOC_SERIES_STM32MP1)
-       if(tim->Instance == TIM14 || tim->Instance == TIM16 || tim->Instance == TIM17)  
-#elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0)
-        if (0)
-#endif
-        {
-#if !defined(SOC_SERIES_STM32F0) && !defined(SOC_SERIES_STM32G0)
-            val = HAL_RCC_GetPCLK2Freq() * pclk2_doubler / freq;
-#endif
-        }
-        else
-        {
-            val = HAL_RCC_GetPCLK1Freq() * pclk1_doubler / freq;
-        }
-        __HAL_TIM_SET_PRESCALER(tim, val - 1);
 
-        /* Update frequency value */
-        tim->Instance->EGR |= TIM_EVENTSOURCE_UPDATE;
-    }
-    break;
+            if( tim->Instance == TIM9 || tim->Instance == TIM10 || tim->Instance == TIM11 )
+#elif defined(SOC_SERIES_STM32L4)
+            if( tim->Instance == TIM15 || tim->Instance == TIM16 || tim->Instance == TIM17 )
+#elif defined(SOC_SERIES_STM32WB)
+            if( tim->Instance == TIM16 || tim->Instance == TIM17 )
+#elif defined(SOC_SERIES_STM32MP1)
+            if( tim->Instance == TIM14 || tim->Instance == TIM16 || tim->Instance == TIM17 )
+#elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0)
+            if( 0 )
+#endif
+            {
+#if !defined(SOC_SERIES_STM32F0) && !defined(SOC_SERIES_STM32G0)
+                val = HAL_RCC_GetPCLK2Freq() * pclk2_doubler / freq;
+#endif
+            }
+            else
+            {
+                val = HAL_RCC_GetPCLK1Freq() * pclk1_doubler / freq;
+            }
+
+            __HAL_TIM_SET_PRESCALER( tim, val - 1 );
+
+            /* Update frequency value */
+            tim->Instance->EGR |= TIM_EVENTSOURCE_UPDATE;
+        }
+        break;
+
     default:
-    {
-        result = -RT_ENOSYS;
-    }
-    break;
+        {
+            result = -RT_ENOSYS;
+        }
+        break;
     }
 
     return result;
 }
 
-static rt_uint32_t timer_counter_get(rt_hwtimer_t *timer)
+static rt_uint32_t timer_counter_get( rt_hwtimer_t *timer )
 {
     TIM_HandleTypeDef *tim = RT_NULL;
 
-    RT_ASSERT(timer != RT_NULL);
+    RT_ASSERT( timer != RT_NULL );
 
-    tim = (TIM_HandleTypeDef *)timer->parent.user_data;
+    tim = ( TIM_HandleTypeDef * )timer->parent.user_data;
 
     return tim->Instance->CNT;
 }
@@ -396,205 +412,226 @@ static const struct rt_hwtimer_ops _ops =
 };
 
 #ifdef BSP_USING_TIM2
-void TIM2_IRQHandler(void)
+void TIM2_IRQHandler( void )
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM2_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM2_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM3
-void TIM3_IRQHandler(void)
+void TIM3_IRQHandler( void )
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM3_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM3_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM4
-void TIM4_IRQHandler(void)
+void TIM4_IRQHandler( void )
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM4_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM4_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM5
-void TIM5_IRQHandler(void)
+void TIM5_IRQHandler( void )
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM5_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM5_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM11
-void TIM1_TRG_COM_TIM11_IRQHandler(void)
+void TIM1_TRG_COM_TIM11_IRQHandler( void )
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM11_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM11_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM13
-void TIM8_UP_TIM13_IRQHandler(void)
+void TIM8_UP_TIM13_IRQHandler( void )
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM13_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM13_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM14
 #if defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
-    void TIM8_TRG_COM_TIM14_IRQHandler(void)
-#elif defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32MP1) 
-    void TIM14_IRQHandler(void)
+    void TIM8_TRG_COM_TIM14_IRQHandler( void )
+#elif defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32MP1)
+    void TIM14_IRQHandler( void )
 #endif
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM14_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM14_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM15
-void TIM1_BRK_TIM15_IRQHandler(void)
+void TIM1_BRK_TIM15_IRQHandler( void )
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM15_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM15_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM16
-#if defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32WB) 
-    void TIM1_UP_TIM16_IRQHandler(void)
-#elif defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32MP1) 
-    void TIM16_IRQHandler(void)
+#if defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32WB)
+    void TIM1_UP_TIM16_IRQHandler( void )
+#elif defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32MP1)
+    void TIM16_IRQHandler( void )
 #endif
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM16_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM16_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 #ifdef BSP_USING_TIM17
-#if defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32WB) 
-    void TIM1_TRG_COM_TIM17_IRQHandler(void)
-#elif defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32MP1) 
-    void TIM17_IRQHandler(void)
+#if defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32WB)
+    void TIM1_TRG_COM_TIM17_IRQHandler( void )
+#elif defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32MP1)
+    void TIM17_IRQHandler( void )
 #endif
 {
     /* enter interrupt */
     rt_interrupt_enter();
-    HAL_TIM_IRQHandler(&stm32_hwtimer_obj[TIM17_INDEX].tim_handle);
+    HAL_TIM_IRQHandler( &stm32_hwtimer_obj[TIM17_INDEX].tim_handle );
     /* leave interrupt */
     rt_interrupt_leave();
 }
 #endif
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
 {
 #ifdef BSP_USING_TIM2
-    if (htim->Instance == TIM2)
+
+    if( htim->Instance == TIM2 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM2_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM2_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM3
-    if (htim->Instance == TIM3)
+
+    if( htim->Instance == TIM3 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM3_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM3_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM4
-    if (htim->Instance == TIM4)
+
+    if( htim->Instance == TIM4 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM4_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM4_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM5
-    if (htim->Instance == TIM5)
+
+    if( htim->Instance == TIM5 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM5_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM5_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM11
-    if (htim->Instance == TIM11)
+
+    if( htim->Instance == TIM11 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM11_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM11_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM13
-    if (htim->Instance == TIM13)
+
+    if( htim->Instance == TIM13 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM13_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM13_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM14
-    if (htim->Instance == TIM14)
+
+    if( htim->Instance == TIM14 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM14_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM14_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM15
-    if (htim->Instance == TIM15)
+
+    if( htim->Instance == TIM15 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM15_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM15_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM16
-    if (htim->Instance == TIM16)
+
+    if( htim->Instance == TIM16 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM16_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM16_INDEX].time_device );
     }
+
 #endif
 #ifdef BSP_USING_TIM17
-    if (htim->Instance == TIM17)
+
+    if( htim->Instance == TIM17 )
     {
-        rt_device_hwtimer_isr(&stm32_hwtimer_obj[TIM17_INDEX].time_device);
+        rt_device_hwtimer_isr( &stm32_hwtimer_obj[TIM17_INDEX].time_device );
     }
+
 #endif
 }
 
-static int stm32_hwtimer_init(void)
+static int stm32_hwtimer_init( void )
 {
     int i = 0;
     int result = RT_EOK;
 
-    for (i = 0; i < sizeof(stm32_hwtimer_obj) / sizeof(stm32_hwtimer_obj[0]); i++)
+    for( i = 0; i < sizeof( stm32_hwtimer_obj ) / sizeof( stm32_hwtimer_obj[0] ); i++ )
     {
         stm32_hwtimer_obj[i].time_device.info = &_info;
         stm32_hwtimer_obj[i].time_device.ops  = &_ops;
-        if (rt_device_hwtimer_register(&stm32_hwtimer_obj[i].time_device, stm32_hwtimer_obj[i].name, &stm32_hwtimer_obj[i].tim_handle) == RT_EOK)
+
+        if( rt_device_hwtimer_register( &stm32_hwtimer_obj[i].time_device, stm32_hwtimer_obj[i].name, &stm32_hwtimer_obj[i].tim_handle ) == RT_EOK )
         {
-            LOG_D("%s register success", stm32_hwtimer_obj[i].name);
+            LOG_D( "%s register success", stm32_hwtimer_obj[i].name );
         }
         else
         {
-            LOG_E("%s register failed", stm32_hwtimer_obj[i].name);
+            LOG_E( "%s register failed", stm32_hwtimer_obj[i].name );
             result = -RT_ERROR;
         }
     }
 
     return result;
 }
-INIT_BOARD_EXPORT(stm32_hwtimer_init);
+INIT_BOARD_EXPORT( stm32_hwtimer_init );
 
 #endif /* RT_USING_HWTIMER */
 #endif /* BSP_USING_TIM */

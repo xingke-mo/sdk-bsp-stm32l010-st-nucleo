@@ -20,7 +20,7 @@
 static SDRAM_HandleTypeDef hsdram1;
 static FMC_SDRAM_CommandTypeDef command;
 #ifdef RT_USING_MEMHEAP_AS_HEAP
-static struct rt_memheap system_heap;
+    static struct rt_memheap system_heap;
 #endif
 
 /**
@@ -29,7 +29,7 @@ static struct rt_memheap system_heap;
   * @param  Command: Pointer to SDRAM command structure
   * @retval None
   */
-static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command)
+static void SDRAM_Initialization_Sequence( SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command )
 {
     __IO uint32_t tmpmrd = 0;
     uint32_t target_bank = 0;
@@ -47,11 +47,11 @@ static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM
     Command->ModeRegisterDefinition = 0;
 
     /* Send the command */
-    HAL_SDRAM_SendCommand(hsdram, Command, 0x1000);
+    HAL_SDRAM_SendCommand( hsdram, Command, 0x1000 );
 
     /* Insert 100 ms delay */
     /* interrupt is not enable, just to delay some time. */
-    for (tmpmrd = 0; tmpmrd < 0xffffff; tmpmrd ++)
+    for( tmpmrd = 0; tmpmrd < 0xffffff; tmpmrd ++ )
         ;
 
     /* Configure a PALL (precharge all) command */
@@ -61,7 +61,7 @@ static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM
     Command->ModeRegisterDefinition = 0;
 
     /* Send the command */
-    HAL_SDRAM_SendCommand(hsdram, Command, 0x1000);
+    HAL_SDRAM_SendCommand( hsdram, Command, 0x1000 );
 
     /* Configure a Auto-Refresh command */
     Command->CommandMode            = FMC_SDRAM_CMD_AUTOREFRESH_MODE;
@@ -70,15 +70,15 @@ static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM
     Command->ModeRegisterDefinition = 0;
 
     /* Send the command */
-    HAL_SDRAM_SendCommand(hsdram, Command, 0x1000);
+    HAL_SDRAM_SendCommand( hsdram, Command, 0x1000 );
 
     /* Program the external memory mode register */
 #if SDRAM_DATA_WIDTH == 8
-    tmpmrd = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_1     |
+    tmpmrd = ( uint32_t )SDRAM_MODEREG_BURST_LENGTH_1     |
 #elif SDRAM_DATA_WIDTH == 16
-    tmpmrd = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_2     |
+    tmpmrd = ( uint32_t )SDRAM_MODEREG_BURST_LENGTH_2     |
 #else
-    tmpmrd = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_4     |
+    tmpmrd = ( uint32_t )SDRAM_MODEREG_BURST_LENGTH_4     |
 #endif
              SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL        |
 #if SDRAM_CAS_LATENCY == 3
@@ -95,13 +95,13 @@ static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM
     Command->ModeRegisterDefinition = tmpmrd;
 
     /* Send the command */
-    HAL_SDRAM_SendCommand(hsdram, Command, 0x1000);
+    HAL_SDRAM_SendCommand( hsdram, Command, 0x1000 );
 
     /* Set the device refresh counter */
-    HAL_SDRAM_ProgramRefreshRate(hsdram, SDRAM_REFRESH_COUNT);
+    HAL_SDRAM_ProgramRefreshRate( hsdram, SDRAM_REFRESH_COUNT );
 }
 
-static int SDRAM_Init(void)
+static int SDRAM_Init( void )
 {
     int result = RT_EOK;
     FMC_SDRAM_TimingTypeDef SDRAM_Timing;
@@ -169,29 +169,29 @@ static int SDRAM_Init(void)
 #endif
 
     /* Initialize the SDRAM controller */
-    if (HAL_SDRAM_Init(&hsdram1, &SDRAM_Timing) != HAL_OK)
+    if( HAL_SDRAM_Init( &hsdram1, &SDRAM_Timing ) != HAL_OK )
     {
-        LOG_E("SDRAM init failed!");
+        LOG_E( "SDRAM init failed!" );
         result = -RT_ERROR;
     }
     else
     {
         /* Program the SDRAM external device */
-        SDRAM_Initialization_Sequence(&hsdram1, &command);
-        LOG_D("sdram init success, mapped at 0x%X, size is %d bytes, data width is %d", SDRAM_BANK_ADDR, SDRAM_SIZE, SDRAM_DATA_WIDTH);
+        SDRAM_Initialization_Sequence( &hsdram1, &command );
+        LOG_D( "sdram init success, mapped at 0x%X, size is %d bytes, data width is %d", SDRAM_BANK_ADDR, SDRAM_SIZE, SDRAM_DATA_WIDTH );
 #ifdef RT_USING_MEMHEAP_AS_HEAP
         /* If RT_USING_MEMHEAP_AS_HEAP is enabled, SDRAM is initialized to the heap */
-        rt_memheap_init(&system_heap, "sdram", (void *)SDRAM_BANK_ADDR, SDRAM_SIZE);
+        rt_memheap_init( &system_heap, "sdram", ( void * )SDRAM_BANK_ADDR, SDRAM_SIZE );
 #endif
     }
 
     return result;
 }
-INIT_BOARD_EXPORT(SDRAM_Init);
+INIT_BOARD_EXPORT( SDRAM_Init );
 
 #ifdef DRV_DEBUG
 #ifdef FINSH_USING_MSH
-int sdram_test(void)
+int sdram_test( void )
 {
     int i = 0;
     uint32_t start_time = 0, time_cast = 0;
@@ -207,58 +207,67 @@ int sdram_test(void)
 #endif
 
     /* write data */
-    LOG_D("Writing the %ld bytes data, waiting....", SDRAM_SIZE);
+    LOG_D( "Writing the %ld bytes data, waiting....", SDRAM_SIZE );
     start_time = rt_tick_get();
-    for (i = 0; i < SDRAM_SIZE / data_width; i++)
+
+    for( i = 0; i < SDRAM_SIZE / data_width; i++ )
     {
 #if SDRAM_DATA_WIDTH == 8
-        *(__IO uint8_t *)(SDRAM_BANK_ADDR + i * data_width) = (uint8_t)0x55;
+        *( __IO uint8_t * )( SDRAM_BANK_ADDR + i * data_width ) = ( uint8_t )0x55;
 #elif SDRAM_DATA_WIDTH == 16
-        *(__IO uint16_t *)(SDRAM_BANK_ADDR + i * data_width) = (uint16_t)0x5555;
+        *( __IO uint16_t * )( SDRAM_BANK_ADDR + i * data_width ) = ( uint16_t )0x5555;
 #else
-        *(__IO uint32_t *)(SDRAM_BANK_ADDR + i * data_width) = (uint32_t)0x55555555;
+        *( __IO uint32_t * )( SDRAM_BANK_ADDR + i * data_width ) = ( uint32_t )0x55555555;
 #endif
     }
+
     time_cast = rt_tick_get() - start_time;
-    LOG_D("Write data success, total time: %d.%03dS.", time_cast / RT_TICK_PER_SECOND,
-          time_cast % RT_TICK_PER_SECOND / ((RT_TICK_PER_SECOND * 1 + 999) / 1000));
+    LOG_D( "Write data success, total time: %d.%03dS.", time_cast / RT_TICK_PER_SECOND,
+           time_cast % RT_TICK_PER_SECOND / ( ( RT_TICK_PER_SECOND * 1 + 999 ) / 1000 ) );
 
     /* read data */
-    LOG_D("start Reading and verifying data, waiting....");
-    for (i = 0; i < SDRAM_SIZE / data_width; i++)
+    LOG_D( "start Reading and verifying data, waiting...." );
+
+    for( i = 0; i < SDRAM_SIZE / data_width; i++ )
     {
 #if SDRAM_DATA_WIDTH == 8
-        data = *(__IO uint8_t *)(SDRAM_BANK_ADDR + i * data_width);
-        if (data != 0x55)
+        data = *( __IO uint8_t * )( SDRAM_BANK_ADDR + i * data_width );
+
+        if( data != 0x55 )
         {
-            LOG_E("SDRAM test failed!");
+            LOG_E( "SDRAM test failed!" );
             break;
         }
+
 #elif SDRAM_DATA_WIDTH == 16
-        data = *(__IO uint16_t *)(SDRAM_BANK_ADDR + i * data_width);
-        if (data != 0x5555)
+        data = *( __IO uint16_t * )( SDRAM_BANK_ADDR + i * data_width );
+
+        if( data != 0x5555 )
         {
-            LOG_E("SDRAM test failed!");
+            LOG_E( "SDRAM test failed!" );
             break;
         }
+
 #else
-        data = *(__IO uint32_t *)(SDRAM_BANK_ADDR + i * data_width);
-        if (data != 0x55555555)
+        data = *( __IO uint32_t * )( SDRAM_BANK_ADDR + i * data_width );
+
+        if( data != 0x55555555 )
         {
-            LOG_E("SDRAM test failed!");
+            LOG_E( "SDRAM test failed!" );
             break;
         }
+
 #endif
     }
 
-    if (i >= SDRAM_SIZE / data_width)
+    if( i >= SDRAM_SIZE / data_width )
     {
-        LOG_D("SDRAM test success!");
+        LOG_D( "SDRAM test success!" );
     }
 
     return RT_EOK;
 }
-MSH_CMD_EXPORT(sdram_test, sdram test)
+MSH_CMD_EXPORT( sdram_test, sdram test )
 #endif /* FINSH_USING_MSH */
 #endif /* DRV_DEBUG */
 #endif /* BSP_USING_SDRAM */

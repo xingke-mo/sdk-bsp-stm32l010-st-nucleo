@@ -20,7 +20,7 @@
 #define MIN_PERIOD 3
 #define MIN_PULSE 2
 
-extern void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+extern void HAL_TIM_MspPostInit( TIM_HandleTypeDef *htim );
 
 enum
 {
@@ -156,43 +156,44 @@ static struct stm32_pwm stm32_pwm_obj[] =
 #endif
 };
 
-static rt_err_t drv_pwm_control(struct rt_device_pwm *device, int cmd, void *arg);
+static rt_err_t drv_pwm_control( struct rt_device_pwm *device, int cmd, void *arg );
 static struct rt_pwm_ops drv_ops =
 {
     drv_pwm_control
 };
 
-static rt_err_t drv_pwm_enable(TIM_HandleTypeDef *htim, struct rt_pwm_configuration *configuration, rt_bool_t enable)
+static rt_err_t drv_pwm_enable( TIM_HandleTypeDef *htim, struct rt_pwm_configuration *configuration, rt_bool_t enable )
 {
     /* Converts the channel number to the channel number of Hal library */
-    rt_uint32_t channel = 0x04 * (configuration->channel - 1);
+    rt_uint32_t channel = 0x04 * ( configuration->channel - 1 );
 
-    if (!enable)
+    if( !enable )
     {
-        HAL_TIM_PWM_Stop(htim, channel);
+        HAL_TIM_PWM_Stop( htim, channel );
     }
     else
     {
-        HAL_TIM_PWM_Start(htim, channel);
+        HAL_TIM_PWM_Start( htim, channel );
     }
 
     return RT_EOK;
 }
 
-static rt_err_t drv_pwm_get(TIM_HandleTypeDef *htim, struct rt_pwm_configuration *configuration)
+static rt_err_t drv_pwm_get( TIM_HandleTypeDef *htim, struct rt_pwm_configuration *configuration )
 {
     /* Converts the channel number to the channel number of Hal library */
-    rt_uint32_t channel = 0x04 * (configuration->channel - 1);
+    rt_uint32_t channel = 0x04 * ( configuration->channel - 1 );
     rt_uint64_t tim_clock;
 
 #if defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
-    if (htim->Instance == TIM9 || htim->Instance == TIM10 || htim->Instance == TIM11)
+
+    if( htim->Instance == TIM9 || htim->Instance == TIM10 || htim->Instance == TIM11 )
 #elif defined(SOC_SERIES_STM32L4)
-    if (htim->Instance == TIM15 || htim->Instance == TIM16 || htim->Instance == TIM17)
+    if( htim->Instance == TIM15 || htim->Instance == TIM16 || htim->Instance == TIM17 )
 #elif defined(SOC_SERIES_STM32MP1)
-    if (htim->Instance == TIM4) 
+    if( htim->Instance == TIM4 )
 #elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0)
-    if (0)
+    if( 0 )
 #endif
     {
 #if !defined(SOC_SERIES_STM32F0) && !defined(SOC_SERIES_STM32G0)
@@ -208,38 +209,39 @@ static rt_err_t drv_pwm_get(TIM_HandleTypeDef *htim, struct rt_pwm_configuration
 #endif
     }
 
-    if (__HAL_TIM_GET_CLOCKDIVISION(htim) == TIM_CLOCKDIVISION_DIV2)
+    if( __HAL_TIM_GET_CLOCKDIVISION( htim ) == TIM_CLOCKDIVISION_DIV2 )
     {
         tim_clock = tim_clock / 2;
     }
-    else if (__HAL_TIM_GET_CLOCKDIVISION(htim) == TIM_CLOCKDIVISION_DIV4)
+    else if( __HAL_TIM_GET_CLOCKDIVISION( htim ) == TIM_CLOCKDIVISION_DIV4 )
     {
         tim_clock = tim_clock / 4;
     }
 
     /* Convert nanosecond to frequency and duty cycle. 1s = 1 * 1000 * 1000 * 1000 ns */
     tim_clock /= 1000000UL;
-    configuration->period = (__HAL_TIM_GET_AUTORELOAD(htim) + 1) * (htim->Instance->PSC + 1) * 1000UL / tim_clock;
-    configuration->pulse = (__HAL_TIM_GET_COMPARE(htim, channel) + 1) * (htim->Instance->PSC + 1) * 1000UL / tim_clock;
+    configuration->period = ( __HAL_TIM_GET_AUTORELOAD( htim ) + 1 ) * ( htim->Instance->PSC + 1 ) * 1000UL / tim_clock;
+    configuration->pulse = ( __HAL_TIM_GET_COMPARE( htim, channel ) + 1 ) * ( htim->Instance->PSC + 1 ) * 1000UL / tim_clock;
 
     return RT_EOK;
 }
 
-static rt_err_t drv_pwm_set(TIM_HandleTypeDef *htim, struct rt_pwm_configuration *configuration)
+static rt_err_t drv_pwm_set( TIM_HandleTypeDef *htim, struct rt_pwm_configuration *configuration )
 {
     rt_uint32_t period, pulse;
     rt_uint64_t tim_clock, psc;
     /* Converts the channel number to the channel number of Hal library */
-    rt_uint32_t channel = 0x04 * (configuration->channel - 1);
+    rt_uint32_t channel = 0x04 * ( configuration->channel - 1 );
 
 #if defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
-    if (htim->Instance == TIM9 || htim->Instance == TIM10 || htim->Instance == TIM11)
+
+    if( htim->Instance == TIM9 || htim->Instance == TIM10 || htim->Instance == TIM11 )
 #elif defined(SOC_SERIES_STM32L4)
-    if (htim->Instance == TIM15 || htim->Instance == TIM16 || htim->Instance == TIM17)
+    if( htim->Instance == TIM15 || htim->Instance == TIM16 || htim->Instance == TIM17 )
 #elif defined(SOC_SERIES_STM32MP1)
-    if (htim->Instance == TIM4)
+    if( htim->Instance == TIM4 )
 #elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0)
-    if (0)
+    if( 0 )
 #endif
     {
 #if !defined(SOC_SERIES_STM32F0) && !defined(SOC_SERIES_STM32G0)
@@ -257,56 +259,63 @@ static rt_err_t drv_pwm_set(TIM_HandleTypeDef *htim, struct rt_pwm_configuration
 
     /* Convert nanosecond to frequency and duty cycle. 1s = 1 * 1000 * 1000 * 1000 ns */
     tim_clock /= 1000000UL;
-    period = (unsigned long long)configuration->period * tim_clock / 1000ULL ;
+    period = ( unsigned long long )configuration->period * tim_clock / 1000ULL ;
     psc = period / MAX_PERIOD + 1;
     period = period / psc;
-    __HAL_TIM_SET_PRESCALER(htim, psc - 1);
+    __HAL_TIM_SET_PRESCALER( htim, psc - 1 );
 
-    if (period < MIN_PERIOD)
+    if( period < MIN_PERIOD )
     {
         period = MIN_PERIOD;
     }
-    __HAL_TIM_SET_AUTORELOAD(htim, period - 1);
 
-    pulse = (unsigned long long)configuration->pulse * tim_clock / psc / 1000ULL;
-    if (pulse < MIN_PULSE)
+    __HAL_TIM_SET_AUTORELOAD( htim, period - 1 );
+
+    pulse = ( unsigned long long )configuration->pulse * tim_clock / psc / 1000ULL;
+
+    if( pulse < MIN_PULSE )
     {
         pulse = MIN_PULSE;
     }
-    else if (pulse > period)
+    else if( pulse > period )
     {
         pulse = period;
     }
-    __HAL_TIM_SET_COMPARE(htim, channel, pulse - 1);
-    __HAL_TIM_SET_COUNTER(htim, 0);
+
+    __HAL_TIM_SET_COMPARE( htim, channel, pulse - 1 );
+    __HAL_TIM_SET_COUNTER( htim, 0 );
 
     /* Update frequency value */
-    HAL_TIM_GenerateEvent(htim, TIM_EVENTSOURCE_UPDATE);
+    HAL_TIM_GenerateEvent( htim, TIM_EVENTSOURCE_UPDATE );
 
     return RT_EOK;
 }
 
-static rt_err_t drv_pwm_control(struct rt_device_pwm *device, int cmd, void *arg)
+static rt_err_t drv_pwm_control( struct rt_device_pwm *device, int cmd, void *arg )
 {
-    struct rt_pwm_configuration *configuration = (struct rt_pwm_configuration *)arg;
-    TIM_HandleTypeDef *htim = (TIM_HandleTypeDef *)device->parent.user_data;
+    struct rt_pwm_configuration *configuration = ( struct rt_pwm_configuration * )arg;
+    TIM_HandleTypeDef *htim = ( TIM_HandleTypeDef * )device->parent.user_data;
 
-    switch (cmd)
+    switch( cmd )
     {
     case PWM_CMD_ENABLE:
-        return drv_pwm_enable(htim, configuration, RT_TRUE);
+        return drv_pwm_enable( htim, configuration, RT_TRUE );
+
     case PWM_CMD_DISABLE:
-        return drv_pwm_enable(htim, configuration, RT_FALSE);
+        return drv_pwm_enable( htim, configuration, RT_FALSE );
+
     case PWM_CMD_SET:
-        return drv_pwm_set(htim, configuration);
+        return drv_pwm_set( htim, configuration );
+
     case PWM_CMD_GET:
-        return drv_pwm_get(htim, configuration);
+        return drv_pwm_get( htim, configuration );
+
     default:
         return RT_EINVAL;
     }
 }
 
-static rt_err_t stm32_hw_pwm_init(struct stm32_pwm *device)
+static rt_err_t stm32_hw_pwm_init( struct stm32_pwm *device )
 {
     rt_err_t result = RT_EOK;
     TIM_HandleTypeDef *tim = RT_NULL;
@@ -314,9 +323,9 @@ static rt_err_t stm32_hw_pwm_init(struct stm32_pwm *device)
     TIM_MasterConfigTypeDef master_config = {0};
     TIM_ClockConfigTypeDef clock_config = {0};
 
-    RT_ASSERT(device != RT_NULL);
+    RT_ASSERT( device != RT_NULL );
 
-    tim = (TIM_HandleTypeDef *)&device->tim_handle;
+    tim = ( TIM_HandleTypeDef * )&device->tim_handle;
 
     /* configure the timer to pwm mode */
     tim->Init.Prescaler = 0;
@@ -327,26 +336,28 @@ static rt_err_t stm32_hw_pwm_init(struct stm32_pwm *device)
     tim->Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 #endif
 
-    if (HAL_TIM_PWM_Init(tim) != HAL_OK)
+    if( HAL_TIM_PWM_Init( tim ) != HAL_OK )
     {
-        LOG_E("%s pwm init failed", device->name);
+        LOG_E( "%s pwm init failed", device->name );
         result = -RT_ERROR;
         goto __exit;
     }
 
     clock_config.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-    if (HAL_TIM_ConfigClockSource(tim, &clock_config) != HAL_OK)
+
+    if( HAL_TIM_ConfigClockSource( tim, &clock_config ) != HAL_OK )
     {
-        LOG_E("%s clock init failed", device->name);
+        LOG_E( "%s clock init failed", device->name );
         result = -RT_ERROR;
         goto __exit;
     }
 
     master_config.MasterOutputTrigger = TIM_TRGO_RESET;
     master_config.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(tim, &master_config) != HAL_OK)
+
+    if( HAL_TIMEx_MasterConfigSynchronization( tim, &master_config ) != HAL_OK )
     {
-        LOG_E("%s master config failed", device->name);
+        LOG_E( "%s master config failed", device->name );
         result = -RT_ERROR;
         goto __exit;
     }
@@ -359,57 +370,57 @@ static rt_err_t stm32_hw_pwm_init(struct stm32_pwm *device)
     oc_config.OCIdleState  = TIM_OCIDLESTATE_RESET;
 
     /* config pwm channel */
-    if (device->channel & 0x01)
+    if( device->channel & 0x01 )
     {
-        if (HAL_TIM_PWM_ConfigChannel(tim, &oc_config, TIM_CHANNEL_1) != HAL_OK)
+        if( HAL_TIM_PWM_ConfigChannel( tim, &oc_config, TIM_CHANNEL_1 ) != HAL_OK )
         {
-            LOG_E("%s channel1 config failed", device->name);
+            LOG_E( "%s channel1 config failed", device->name );
             result = -RT_ERROR;
             goto __exit;
         }
     }
 
-    if (device->channel & 0x02)
+    if( device->channel & 0x02 )
     {
-        if (HAL_TIM_PWM_ConfigChannel(tim, &oc_config, TIM_CHANNEL_2) != HAL_OK)
+        if( HAL_TIM_PWM_ConfigChannel( tim, &oc_config, TIM_CHANNEL_2 ) != HAL_OK )
         {
-            LOG_E("%s channel2 config failed", device->name);
+            LOG_E( "%s channel2 config failed", device->name );
             result = -RT_ERROR;
             goto __exit;
         }
     }
 
-    if (device->channel & 0x04)
+    if( device->channel & 0x04 )
     {
-        if (HAL_TIM_PWM_ConfigChannel(tim, &oc_config, TIM_CHANNEL_3) != HAL_OK)
+        if( HAL_TIM_PWM_ConfigChannel( tim, &oc_config, TIM_CHANNEL_3 ) != HAL_OK )
         {
-            LOG_E("%s channel3 config failed", device->name);
+            LOG_E( "%s channel3 config failed", device->name );
             result = -RT_ERROR;
             goto __exit;
         }
     }
 
-    if (device->channel & 0x08)
+    if( device->channel & 0x08 )
     {
-        if (HAL_TIM_PWM_ConfigChannel(tim, &oc_config, TIM_CHANNEL_4) != HAL_OK)
+        if( HAL_TIM_PWM_ConfigChannel( tim, &oc_config, TIM_CHANNEL_4 ) != HAL_OK )
         {
-            LOG_E("%s channel4 config failed", device->name);
+            LOG_E( "%s channel4 config failed", device->name );
             result = -RT_ERROR;
             goto __exit;
         }
     }
 
     /* pwm pin configuration */
-    HAL_TIM_MspPostInit(tim);
+    HAL_TIM_MspPostInit( tim );
 
     /* enable update request source */
-    __HAL_TIM_URS_ENABLE(tim);
+    __HAL_TIM_URS_ENABLE( tim );
 
 __exit:
     return result;
 }
 
-static void pwm_get_channel(void)
+static void pwm_get_channel( void )
 {
 #ifdef BSP_USING_PWM1_CH1
     stm32_pwm_obj[PWM1_INDEX].channel |= 1 << 0;
@@ -527,34 +538,34 @@ static void pwm_get_channel(void)
 #endif
 }
 
-static int stm32_pwm_init(void)
+static int stm32_pwm_init( void )
 {
     int i = 0;
     int result = RT_EOK;
 
     pwm_get_channel();
 
-    for (i = 0; i < sizeof(stm32_pwm_obj) / sizeof(stm32_pwm_obj[0]); i++)
+    for( i = 0; i < sizeof( stm32_pwm_obj ) / sizeof( stm32_pwm_obj[0] ); i++ )
     {
         /* pwm init */
-        if (stm32_hw_pwm_init(&stm32_pwm_obj[i]) != RT_EOK)
+        if( stm32_hw_pwm_init( &stm32_pwm_obj[i] ) != RT_EOK )
         {
-            LOG_E("%s init failed", stm32_pwm_obj[i].name);
+            LOG_E( "%s init failed", stm32_pwm_obj[i].name );
             result = -RT_ERROR;
             goto __exit;
         }
         else
         {
-            LOG_D("%s init success", stm32_pwm_obj[i].name);
+            LOG_D( "%s init success", stm32_pwm_obj[i].name );
 
             /* register pwm device */
-            if (rt_device_pwm_register(&stm32_pwm_obj[i].pwm_device, stm32_pwm_obj[i].name, &drv_ops, &stm32_pwm_obj[i].tim_handle) == RT_EOK)
+            if( rt_device_pwm_register( &stm32_pwm_obj[i].pwm_device, stm32_pwm_obj[i].name, &drv_ops, &stm32_pwm_obj[i].tim_handle ) == RT_EOK )
             {
-                LOG_D("%s register success", stm32_pwm_obj[i].name);
+                LOG_D( "%s register success", stm32_pwm_obj[i].name );
             }
             else
             {
-                LOG_E("%s register failed", stm32_pwm_obj[i].name);
+                LOG_E( "%s register failed", stm32_pwm_obj[i].name );
                 result = -RT_ERROR;
             }
         }
@@ -563,5 +574,5 @@ static int stm32_pwm_init(void)
 __exit:
     return result;
 }
-INIT_DEVICE_EXPORT(stm32_pwm_init);
+INIT_DEVICE_EXPORT( stm32_pwm_init );
 #endif /* RT_USING_PWM */

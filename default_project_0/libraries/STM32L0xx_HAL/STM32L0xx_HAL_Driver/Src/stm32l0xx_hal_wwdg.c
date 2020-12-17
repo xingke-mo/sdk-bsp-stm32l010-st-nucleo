@@ -81,12 +81,12 @@
         (++) MspInitCallback : WWDG MspInit.
 
     When calling @ref HAL_WWDG_Init function, callbacks are reset to the
-    corresponding legacy weak (surcharged) functions: 
+    corresponding legacy weak (surcharged) functions:
     @ref HAL_WWDG_EarlyWakeupCallback() and HAL_WWDG_MspInit() only if they have
     not been registered before.
 
     When compilation define USE_HAL_WWDG_REGISTER_CALLBACKS is set to 0 or
-    not defined, the callback registering feature is not available 
+    not defined, the callback registering feature is not available
     and weak (surcharged) callbacks are used.
 
     *** WWDG HAL driver macros list ***
@@ -161,48 +161,49 @@
   *                the configuration information for the specified WWDG module.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
+HAL_StatusTypeDef HAL_WWDG_Init( WWDG_HandleTypeDef *hwwdg )
 {
-  /* Check the WWDG handle allocation */
-  if (hwwdg == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check the WWDG handle allocation */
+    if( hwwdg == NULL )
+    {
+        return HAL_ERROR;
+    }
 
-  /* Check the parameters */
-  assert_param(IS_WWDG_ALL_INSTANCE(hwwdg->Instance));
-  assert_param(IS_WWDG_PRESCALER(hwwdg->Init.Prescaler));
-  assert_param(IS_WWDG_WINDOW(hwwdg->Init.Window));
-  assert_param(IS_WWDG_COUNTER(hwwdg->Init.Counter));
-  assert_param(IS_WWDG_EWI_MODE(hwwdg->Init.EWIMode));
+    /* Check the parameters */
+    assert_param( IS_WWDG_ALL_INSTANCE( hwwdg->Instance ) );
+    assert_param( IS_WWDG_PRESCALER( hwwdg->Init.Prescaler ) );
+    assert_param( IS_WWDG_WINDOW( hwwdg->Init.Window ) );
+    assert_param( IS_WWDG_COUNTER( hwwdg->Init.Counter ) );
+    assert_param( IS_WWDG_EWI_MODE( hwwdg->Init.EWIMode ) );
 
 #if (USE_HAL_WWDG_REGISTER_CALLBACKS == 1)
-  /* Reset Callback pointers */
-  if(hwwdg->EwiCallback == NULL)
-  {
-    hwwdg->EwiCallback = HAL_WWDG_EarlyWakeupCallback;
-  }
 
-  if(hwwdg->MspInitCallback == NULL)
-  {
-    hwwdg->MspInitCallback = HAL_WWDG_MspInit;
-  }
+    /* Reset Callback pointers */
+    if( hwwdg->EwiCallback == NULL )
+    {
+        hwwdg->EwiCallback = HAL_WWDG_EarlyWakeupCallback;
+    }
 
-  /* Init the low level hardware */
-  hwwdg->MspInitCallback(hwwdg);
+    if( hwwdg->MspInitCallback == NULL )
+    {
+        hwwdg->MspInitCallback = HAL_WWDG_MspInit;
+    }
+
+    /* Init the low level hardware */
+    hwwdg->MspInitCallback( hwwdg );
 #else
-  /* Init the low level hardware */
-  HAL_WWDG_MspInit(hwwdg);
+    /* Init the low level hardware */
+    HAL_WWDG_MspInit( hwwdg );
 #endif
 
-  /* Set WWDG Counter */
-  WRITE_REG(hwwdg->Instance->CR, (WWDG_CR_WDGA | hwwdg->Init.Counter));
+    /* Set WWDG Counter */
+    WRITE_REG( hwwdg->Instance->CR, ( WWDG_CR_WDGA | hwwdg->Init.Counter ) );
 
-  /* Set WWDG Prescaler and Window */
-  WRITE_REG(hwwdg->Instance->CFR, (hwwdg->Init.EWIMode | hwwdg->Init.Prescaler | hwwdg->Init.Window));
+    /* Set WWDG Prescaler and Window */
+    WRITE_REG( hwwdg->Instance->CFR, ( hwwdg->Init.EWIMode | hwwdg->Init.Prescaler | hwwdg->Init.Window ) );
 
-  /* Return function status */
-  return HAL_OK;
+    /* Return function status */
+    return HAL_OK;
 }
 
 
@@ -215,14 +216,14 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
   *         again to change parameters.
   * @retval None
   */
-__weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
+__weak void HAL_WWDG_MspInit( WWDG_HandleTypeDef *hwwdg )
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hwwdg);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED( hwwdg );
 
-  /* NOTE: This function should not be modified, when the callback is needed,
-           the HAL_WWDG_MspInit could be implemented in the user file
-   */
+    /* NOTE: This function should not be modified, when the callback is needed,
+             the HAL_WWDG_MspInit could be implemented in the user file
+     */
 }
 
 
@@ -238,39 +239,39 @@ __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
   * @param  pCallback pointer to the Callback function
   * @retval status
   */
-HAL_StatusTypeDef HAL_WWDG_RegisterCallback(WWDG_HandleTypeDef *hwwdg, HAL_WWDG_CallbackIDTypeDef CallbackID, pWWDG_CallbackTypeDef pCallback)
+HAL_StatusTypeDef HAL_WWDG_RegisterCallback( WWDG_HandleTypeDef *hwwdg, HAL_WWDG_CallbackIDTypeDef CallbackID, pWWDG_CallbackTypeDef pCallback )
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  if(pCallback == NULL)
-  {
-    status = HAL_ERROR;
-  }
-  else
-  {
-    switch(CallbackID)
+    if( pCallback == NULL )
     {
-      case HAL_WWDG_EWI_CB_ID:
-        hwwdg->EwiCallback = pCallback;
-        break;
-
-      case HAL_WWDG_MSPINIT_CB_ID:
-        hwwdg->MspInitCallback = pCallback;
-        break;
-
-      default:
         status = HAL_ERROR;
-        break;
     }
-  }
+    else
+    {
+        switch( CallbackID )
+        {
+        case HAL_WWDG_EWI_CB_ID:
+            hwwdg->EwiCallback = pCallback;
+            break;
 
-  return status;
+        case HAL_WWDG_MSPINIT_CB_ID:
+            hwwdg->MspInitCallback = pCallback;
+            break;
+
+        default:
+            status = HAL_ERROR;
+            break;
+        }
+    }
+
+    return status;
 }
 
 
 /**
   * @brief  Unregister a WWDG Callback
-  *         WWDG Callback is redirected to the weak (surcharged) predefined callback 
+  *         WWDG Callback is redirected to the weak (surcharged) predefined callback
   * @param  hwwdg WWDG handle
   * @param  CallbackID ID of the callback to be registered
   *         This parameter can be one of the following values:
@@ -278,26 +279,26 @@ HAL_StatusTypeDef HAL_WWDG_RegisterCallback(WWDG_HandleTypeDef *hwwdg, HAL_WWDG_
   *           @arg @ref HAL_WWDG_MSPINIT_CB_ID MspInit callback ID
   * @retval status
   */
-HAL_StatusTypeDef HAL_WWDG_UnRegisterCallback(WWDG_HandleTypeDef *hwwdg, HAL_WWDG_CallbackIDTypeDef CallbackID)
+HAL_StatusTypeDef HAL_WWDG_UnRegisterCallback( WWDG_HandleTypeDef *hwwdg, HAL_WWDG_CallbackIDTypeDef CallbackID )
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  switch(CallbackID)
-  {
+    switch( CallbackID )
+    {
     case HAL_WWDG_EWI_CB_ID:
-      hwwdg->EwiCallback = HAL_WWDG_EarlyWakeupCallback;
-      break;
+        hwwdg->EwiCallback = HAL_WWDG_EarlyWakeupCallback;
+        break;
 
     case HAL_WWDG_MSPINIT_CB_ID:
-      hwwdg->MspInitCallback = HAL_WWDG_MspInit;
-      break;
+        hwwdg->MspInitCallback = HAL_WWDG_MspInit;
+        break;
 
     default:
-      status = HAL_ERROR;
-      break;
-  }
+        status = HAL_ERROR;
+        break;
+    }
 
-  return status;
+    return status;
 }
 #endif
 
@@ -327,13 +328,13 @@ HAL_StatusTypeDef HAL_WWDG_UnRegisterCallback(WWDG_HandleTypeDef *hwwdg, HAL_WWD
   *                the configuration information for the specified WWDG module.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg)
+HAL_StatusTypeDef HAL_WWDG_Refresh( WWDG_HandleTypeDef *hwwdg )
 {
-  /* Write to WWDG CR the WWDG Counter value to refresh with */
-  WRITE_REG(hwwdg->Instance->CR, (hwwdg->Init.Counter));
+    /* Write to WWDG CR the WWDG Counter value to refresh with */
+    WRITE_REG( hwwdg->Instance->CR, ( hwwdg->Init.Counter ) );
 
-  /* Return function status */
-  return HAL_OK;
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -350,26 +351,26 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg)
   *                the configuration information for the specified WWDG module.
   * @retval None
   */
-void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
+void HAL_WWDG_IRQHandler( WWDG_HandleTypeDef *hwwdg )
 {
-  /* Check if Early Wakeup Interrupt is enable */
-  if (__HAL_WWDG_GET_IT_SOURCE(hwwdg, WWDG_IT_EWI) != RESET)
-  {
-    /* Check if WWDG Early Wakeup Interrupt occurred */
-    if (__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
+    /* Check if Early Wakeup Interrupt is enable */
+    if( __HAL_WWDG_GET_IT_SOURCE( hwwdg, WWDG_IT_EWI ) != RESET )
     {
-      /* Clear the WWDG Early Wakeup flag */
-      __HAL_WWDG_CLEAR_FLAG(hwwdg, WWDG_FLAG_EWIF);
+        /* Check if WWDG Early Wakeup Interrupt occurred */
+        if( __HAL_WWDG_GET_FLAG( hwwdg, WWDG_FLAG_EWIF ) != RESET )
+        {
+            /* Clear the WWDG Early Wakeup flag */
+            __HAL_WWDG_CLEAR_FLAG( hwwdg, WWDG_FLAG_EWIF );
 
 #if (USE_HAL_WWDG_REGISTER_CALLBACKS == 1)
-      /* Early Wakeup registered callback */
-      hwwdg->EwiCallback(hwwdg);
+            /* Early Wakeup registered callback */
+            hwwdg->EwiCallback( hwwdg );
 #else
-      /* Early Wakeup callback */
-      HAL_WWDG_EarlyWakeupCallback(hwwdg);
+            /* Early Wakeup callback */
+            HAL_WWDG_EarlyWakeupCallback( hwwdg );
 #endif
+        }
     }
-  }
 }
 
 
@@ -379,14 +380,14 @@ void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
   *                the configuration information for the specified WWDG module.
   * @retval None
   */
-__weak void HAL_WWDG_EarlyWakeupCallback(WWDG_HandleTypeDef *hwwdg)
+__weak void HAL_WWDG_EarlyWakeupCallback( WWDG_HandleTypeDef *hwwdg )
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hwwdg);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED( hwwdg );
 
-  /* NOTE: This function should not be modified, when the callback is needed,
-           the HAL_WWDG_EarlyWakeupCallback could be implemented in the user file
-   */
+    /* NOTE: This function should not be modified, when the callback is needed,
+             the HAL_WWDG_EarlyWakeupCallback could be implemented in the user file
+     */
 }
 
 /**

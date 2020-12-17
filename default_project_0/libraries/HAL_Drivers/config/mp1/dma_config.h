@@ -39,7 +39,7 @@ extern "C" {
 #define UART5_RX_DMA_CHANNEL             DMA_REQUEST_UART5_RX
 #define UART5_RX_DMA_IRQ                 DMA2_Stream0_IRQn
 #endif
-    
+
 /* DMA2 stream1 */
 #if defined(BSP_UART3_TX_USING_DMA) && !defined(BSP_UART3_TX_USING_INSTANCE)
 #define UART3_TX_DMA_IRQHandler           DMA2_Stream1_IRQHandler
@@ -88,7 +88,7 @@ extern "C" {
 #define UART4_TX_DMA_RCC                 RCC_MC_AHB2ENSETR_DMA2EN
 #define UART4_TX_DMA_INSTANCE            DMA2_Stream5
 #define UART4_TX_DMA_CHANNEL             DMA_REQUEST_UART4_TX
-#define UART4_TX_DMA_IRQ                 DMA2_Stream5_IRQn    
+#define UART4_TX_DMA_IRQ                 DMA2_Stream5_IRQn
 #endif
 
 /* DMA2 stream6 */
@@ -97,7 +97,7 @@ extern "C" {
 #define UART4_RX_DMA_RCC                 RCC_MC_AHB2ENSETR_DMA2EN
 #define UART4_RX_DMA_INSTANCE            DMA2_Stream6
 #define UART4_RX_DMA_CHANNEL             DMA_REQUEST_UART4_RX
-#define UART4_RX_DMA_IRQ                 DMA2_Stream6_IRQn        
+#define UART4_RX_DMA_IRQ                 DMA2_Stream6_IRQn
 #endif
 
 /* DMA2 stream7 */
@@ -108,7 +108,7 @@ extern "C" {
 #define UART5_TX_DMA_CHANNEL             DMA_REQUEST_UART5_TX
 #define UART5_TX_DMA_IRQ                 DMA2_Stream7_IRQn
 #endif
-    
+
 #ifdef __cplusplus
 }
 #endif

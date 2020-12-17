@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-rt_err_t rt_hw_spi_device_attach(const char *bus_name, const char *device_name, GPIO_TypeDef* cs_gpiox, uint16_t cs_gpio_pin);
+rt_err_t rt_hw_spi_device_attach( const char *bus_name, const char *device_name, GPIO_TypeDef *cs_gpiox, uint16_t cs_gpio_pin );
 
 #ifdef __cplusplus
 }
@@ -29,7 +29,7 @@ rt_err_t rt_hw_spi_device_attach(const char *bus_name, const char *device_name, 
 
 struct stm32_hw_spi_cs
 {
-    GPIO_TypeDef* GPIOx;
+    GPIO_TypeDef *GPIOx;
     uint16_t GPIO_Pin;
 };
 
@@ -62,7 +62,7 @@ struct stm32_spi
         DMA_HandleTypeDef handle_rx;
         DMA_HandleTypeDef handle_tx;
     } dma;
-    
+
     rt_uint8_t spi_dma_flag;
     struct rt_spi_bus spi_bus;
 };

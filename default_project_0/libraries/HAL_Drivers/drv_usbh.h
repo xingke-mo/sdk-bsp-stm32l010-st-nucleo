@@ -14,7 +14,7 @@
 
 #define OTG_FS_PORT 1
 
-int stm_usbh_register(void);
+int stm_usbh_register( void );
 
 #endif
 

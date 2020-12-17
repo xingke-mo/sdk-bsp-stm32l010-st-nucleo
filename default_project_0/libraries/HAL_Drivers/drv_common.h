@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-void _Error_Handler(char *s, int num);
+void _Error_Handler( char *s, int num );
 
 #ifndef Error_Handler
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)

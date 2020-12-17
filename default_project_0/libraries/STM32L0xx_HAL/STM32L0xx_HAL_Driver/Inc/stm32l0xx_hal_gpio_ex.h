@@ -15,14 +15,14 @@
   *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_GPIO_EX_H
 #define __STM32L0xx_HAL_GPIO_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -42,8 +42,8 @@
 
 /** @defgroup GPIOEx_Exported_Constants GPIOEx Exported Constants
   * @{
-  */ 
-  
+  */
+
 
 /*----------------------------------------------------------------------------*/
 /*------------------------- STM32L083xx/STM32L073xx---------------------------*/
@@ -285,9 +285,9 @@
  */
 #define IS_GPIO_AF(AF)         ((AF) <= (uint8_t)0x07)
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* (STM32L083xx) || (STM32L073xx) */
 
 /*----------------------------------------------------------------------------*/
@@ -500,9 +500,9 @@
   *
   */
 
- /*
-  * Alternate function AF7
- */
+/*
+ * Alternate function AF7
+*/
 #define GPIO_AF7_COMP1        ((uint8_t)0x07U)  /* COMP1 Alternate Function mapping     */
 #define GPIO_AF7_COMP2        ((uint8_t)0x07U)  /* COMP2 Alternate Function mapping     */
 #define GPIO_AF7_I2C3         ((uint8_t)0x07U)  /* I2C3 Alternate Function mapping      */
@@ -511,9 +511,9 @@
   *
   */
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 
 /**
   * @}
@@ -527,9 +527,9 @@
  */
 #define IS_GPIO_AF(AF)         ((AF) <= (uint8_t)0x07)
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* (STM32L082xx) || (STM32L072xx) */
 
 
@@ -772,14 +772,14 @@
  * @{
  */
 
- /**
- * IS_GPIO_AF macro definition
- */
+/**
+* IS_GPIO_AF macro definition
+*/
 #define IS_GPIO_AF(AF)         ((AF) <= (uint8_t)0x07)
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* (STM32L081xx) || (STM32L071xx) */
 
 /*----------------------------------------------------------------------------*/
@@ -877,9 +877,9 @@
   *
   */
 
- /*
-  * Alternate function AF1
- */
+/*
+ * Alternate function AF1
+*/
 #define GPIO_AF1_SPI1          ((uint8_t)0x01U)  /* SPI1 Alternate Function mapping  */
 #define GPIO_AF1_SPI2          ((uint8_t)0x01U)  /* SPI2 Alternate Function mapping  */
 #define GPIO_AF1_I2C1          ((uint8_t)0x01U)  /* I2C1 Alternate Function mapping  */
@@ -925,9 +925,9 @@
   *
   */
 
- /*
- * Alternate function AF5
- */
+/*
+* Alternate function AF5
+*/
 #define GPIO_AF5_SPI2          ((uint8_t)0x05U)  /* SPI2 Alternate Function mapping     */
 #define GPIO_AF5_I2C2          ((uint8_t)0x05U)  /* I2C2 Alternate Function mapping     */
 #define GPIO_AF5_TIM2          ((uint8_t)0x05U)  /* TIM2 Alternate Function mapping     */
@@ -1278,9 +1278,9 @@
   *
   */
 
- /*
-  * Alternate function AF2
- */
+/*
+ * Alternate function AF2
+*/
 #define GPIO_AF2_SPI2          ((uint8_t)0x02U)  /* SPI2 Alternate Function mapping       */
 #define GPIO_AF2_LPUART1       ((uint8_t)0x02U)  /* LPUART1 Alternate Function mapping    */
 #define GPIO_AF2_USB           ((uint8_t)0x02U)  /* USB Alternate Function mapping        */
@@ -1748,7 +1748,7 @@
  *_______________________________________________________________________________________________|
  * PD2 |LPUART1_RTS|          |           |         |           |         |           |          |
  *_______________________________________________________________________________________________|
- */                                      
+ */
 
 /** @defgroup GPIOEx_Alternate_function_selection Alternate function selection
  * @{
@@ -1861,9 +1861,9 @@
  * @{
  */
 
- /**
- * IS_GPIO_AF macro definition
- */
+/**
+* IS_GPIO_AF macro definition
+*/
 #define IS_GPIO_AF(AF)         ((AF) <= (uint8_t)0x07)
 
 /**
@@ -1956,9 +1956,9 @@
   *
   */
 
- /*
-  * Alternate function AF2
- */
+/*
+ * Alternate function AF2
+*/
 #define GPIO_AF2_TIM2          ((uint8_t)0x02U)  /* TIM2 Alternate Function mapping       */
 #define GPIO_AF2_EVENTOUT      ((uint8_t)0x02U)  /* EVENTOUT Alternate Function mapping   */
 #define GPIO_AF2_LPTIM1        ((uint8_t)0x02U)  /* LPTIM1 Alternate Function mapping     */
@@ -2330,12 +2330,12 @@
     defined (STM32L073xx) || defined (STM32L072xx) || defined (STM32L071xx) || \
     defined (STM32L010xB)
 
- /** @addtogroup GPIOEx_Exported_Constants
- * @{
- */
- /** @defgroup GPIOEx_Pin_Available Pin available
- * @{
- */
+/** @addtogroup GPIOEx_Exported_Constants
+* @{
+*/
+/** @defgroup GPIOEx_Pin_Available Pin available
+* @{
+*/
 #define GPIOA_PIN_AVAILABLE  GPIO_PIN_All
 #define GPIOB_PIN_AVAILABLE  GPIO_PIN_All
 #define GPIOC_PIN_AVAILABLE  GPIO_PIN_All
@@ -2349,9 +2349,9 @@
   * @}
   */
 
- /** @addtogroup GPIOEx_Private
- * @{
- */
+/** @addtogroup GPIOEx_Private
+* @{
+*/
 #define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
                                       ((__GPIOx__) == (GPIOB))? 1U :\
                                       ((__GPIOx__) == (GPIOC))? 2U :\

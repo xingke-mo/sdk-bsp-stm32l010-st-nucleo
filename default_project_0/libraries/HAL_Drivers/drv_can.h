@@ -48,7 +48,7 @@ struct stm32_can
     struct rt_can_device device;     /* inherit from can device */
 };
 
-int rt_hw_can_init(void);
+int rt_hw_can_init( void );
 
 #ifdef __cplusplus
 }

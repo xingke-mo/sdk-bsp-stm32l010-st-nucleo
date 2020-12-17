@@ -14,7 +14,7 @@
 #ifdef BSP_USING_ONCHIP_RTC
 
 #ifndef RTC_BKP_DR1
-#define RTC_BKP_DR1 RT_NULL
+    #define RTC_BKP_DR1 RT_NULL
 #endif
 
 //#define DRV_DEBUG
@@ -27,24 +27,24 @@ static struct rt_device rtc;
 
 static RTC_HandleTypeDef RTC_Handler;
 
-RT_WEAK uint32_t HAL_RTCEx_BKUPRead(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister)
+RT_WEAK uint32_t HAL_RTCEx_BKUPRead( RTC_HandleTypeDef *hrtc, uint32_t BackupRegister )
 {
-    return (~BKUP_REG_DATA);
+    return ( ~BKUP_REG_DATA );
 }
 
-RT_WEAK void HAL_RTCEx_BKUPWrite(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister, uint32_t Data)
+RT_WEAK void HAL_RTCEx_BKUPWrite( RTC_HandleTypeDef *hrtc, uint32_t BackupRegister, uint32_t Data )
 {
     return;
 }
 
-static time_t get_rtc_timestamp(void)
+static time_t get_rtc_timestamp( void )
 {
     RTC_TimeTypeDef RTC_TimeStruct = {0};
     RTC_DateTypeDef RTC_DateStruct = {0};
     struct tm tm_new = {0};
 
-    HAL_RTC_GetTime(&RTC_Handler, &RTC_TimeStruct, RTC_FORMAT_BIN);
-    HAL_RTC_GetDate(&RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN);
+    HAL_RTC_GetTime( &RTC_Handler, &RTC_TimeStruct, RTC_FORMAT_BIN );
+    HAL_RTC_GetDate( &RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN );
 
     tm_new.tm_sec  = RTC_TimeStruct.Seconds;
     tm_new.tm_min  = RTC_TimeStruct.Minutes;
@@ -53,18 +53,19 @@ static time_t get_rtc_timestamp(void)
     tm_new.tm_mon  = RTC_DateStruct.Month - 1;
     tm_new.tm_year = RTC_DateStruct.Year + 100;
 
-    LOG_D("get rtc time.");
-    return mktime(&tm_new);
+    LOG_D( "get rtc time." );
+    return mktime( &tm_new );
 }
 
-static rt_err_t set_rtc_time_stamp(time_t time_stamp)
+static rt_err_t set_rtc_time_stamp( time_t time_stamp )
 {
     RTC_TimeTypeDef RTC_TimeStruct = {0};
     RTC_DateTypeDef RTC_DateStruct = {0};
     struct tm *p_tm;
 
-    p_tm = localtime(&time_stamp);
-    if (p_tm->tm_year < 100)
+    p_tm = localtime( &time_stamp );
+
+    if( p_tm->tm_year < 100 )
     {
         return -RT_ERROR;
     }
@@ -77,30 +78,31 @@ static rt_err_t set_rtc_time_stamp(time_t time_stamp)
     RTC_DateStruct.Year    = p_tm->tm_year - 100;
     RTC_DateStruct.WeekDay = p_tm->tm_wday + 1;
 
-    if (HAL_RTC_SetTime(&RTC_Handler, &RTC_TimeStruct, RTC_FORMAT_BIN) != HAL_OK)
-    {
-        return -RT_ERROR;
-    }
-    if (HAL_RTC_SetDate(&RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN) != HAL_OK)
+    if( HAL_RTC_SetTime( &RTC_Handler, &RTC_TimeStruct, RTC_FORMAT_BIN ) != HAL_OK )
     {
         return -RT_ERROR;
     }
 
-    LOG_D("set rtc time.");
-    HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR1, BKUP_REG_DATA);
+    if( HAL_RTC_SetDate( &RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN ) != HAL_OK )
+    {
+        return -RT_ERROR;
+    }
+
+    LOG_D( "set rtc time." );
+    HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR1, BKUP_REG_DATA );
 
 #ifdef SOC_SERIES_STM32F1
     /* F1 series does't save year/month/date datas. so keep those datas to bkp reg */
-    HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR2, RTC_DateStruct.Year);
-    HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR3, RTC_DateStruct.Month);
-    HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR4, RTC_DateStruct.Date);
-    HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR5, RTC_DateStruct.WeekDay);
+    HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR2, RTC_DateStruct.Year );
+    HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR3, RTC_DateStruct.Month );
+    HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR4, RTC_DateStruct.Date );
+    HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR5, RTC_DateStruct.WeekDay );
 #endif
 
     return RT_EOK;
 }
 
-static void rt_rtc_init(void)
+static void rt_rtc_init( void )
 {
 #if !defined(SOC_SERIES_STM32H7) && !defined(SOC_SERIES_STM32WB)
     __HAL_RCC_PWR_CLK_ENABLE();
@@ -109,7 +111,7 @@ static void rt_rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 #ifdef BSP_RTC_USING_LSI
 #ifdef SOC_SERIES_STM32WB
-RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI1;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI1;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
     RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
     RCC_OscInitStruct.LSIState = RCC_LSI_ON;
@@ -125,40 +127,42 @@ RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI1;
     RCC_OscInitStruct.LSEState = RCC_LSE_ON;
     RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
 #endif
-    HAL_RCC_OscConfig(&RCC_OscInitStruct);
+    HAL_RCC_OscConfig( &RCC_OscInitStruct );
 }
 
 #ifdef SOC_SERIES_STM32F1
 /* update RTC_BKP_DRx*/
-static void rt_rtc_f1_bkp_update(void)
+static void rt_rtc_f1_bkp_update( void )
 {
     RTC_DateTypeDef RTC_DateStruct = {0};
 
     HAL_PWR_EnableBkUpAccess();
     __HAL_RCC_BKP_CLK_ENABLE();
 
-    RTC_DateStruct.Year    = HAL_RTCEx_BKUPRead(&RTC_Handler, RTC_BKP_DR2);
-    RTC_DateStruct.Month   = HAL_RTCEx_BKUPRead(&RTC_Handler, RTC_BKP_DR3);
-    RTC_DateStruct.Date    = HAL_RTCEx_BKUPRead(&RTC_Handler, RTC_BKP_DR4);
-    RTC_DateStruct.WeekDay = HAL_RTCEx_BKUPRead(&RTC_Handler, RTC_BKP_DR5);
-    if (HAL_RTC_SetDate(&RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN) != HAL_OK)
+    RTC_DateStruct.Year    = HAL_RTCEx_BKUPRead( &RTC_Handler, RTC_BKP_DR2 );
+    RTC_DateStruct.Month   = HAL_RTCEx_BKUPRead( &RTC_Handler, RTC_BKP_DR3 );
+    RTC_DateStruct.Date    = HAL_RTCEx_BKUPRead( &RTC_Handler, RTC_BKP_DR4 );
+    RTC_DateStruct.WeekDay = HAL_RTCEx_BKUPRead( &RTC_Handler, RTC_BKP_DR5 );
+
+    if( HAL_RTC_SetDate( &RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN ) != HAL_OK )
     {
         Error_Handler();
     }
 
-    HAL_RTC_GetDate(&RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN);
-    if (HAL_RTCEx_BKUPRead(&RTC_Handler, RTC_BKP_DR4) != RTC_DateStruct.Date)
+    HAL_RTC_GetDate( &RTC_Handler, &RTC_DateStruct, RTC_FORMAT_BIN );
+
+    if( HAL_RTCEx_BKUPRead( &RTC_Handler, RTC_BKP_DR4 ) != RTC_DateStruct.Date )
     {
-        HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR1, BKUP_REG_DATA);
-        HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR2, RTC_DateStruct.Year);
-        HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR3, RTC_DateStruct.Month);
-        HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR4, RTC_DateStruct.Date);
-        HAL_RTCEx_BKUPWrite(&RTC_Handler, RTC_BKP_DR5, RTC_DateStruct.WeekDay);
+        HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR1, BKUP_REG_DATA );
+        HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR2, RTC_DateStruct.Year );
+        HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR3, RTC_DateStruct.Month );
+        HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR4, RTC_DateStruct.Date );
+        HAL_RTCEx_BKUPWrite( &RTC_Handler, RTC_BKP_DR5, RTC_DateStruct.WeekDay );
     }
 }
 #endif
 
-static rt_err_t rt_rtc_config(struct rt_device *dev)
+static rt_err_t rt_rtc_config( struct rt_device *dev )
 {
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
@@ -169,15 +173,16 @@ static rt_err_t rt_rtc_config(struct rt_device *dev)
 #else
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
 #endif
-    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+    HAL_RCCEx_PeriphCLKConfig( &PeriphClkInitStruct );
 
     /* Enable RTC Clock */
     __HAL_RCC_RTC_ENABLE();
 
     RTC_Handler.Instance = RTC;
-    if (HAL_RTCEx_BKUPRead(&RTC_Handler, RTC_BKP_DR1) != BKUP_REG_DATA)
+
+    if( HAL_RTCEx_BKUPRead( &RTC_Handler, RTC_BKP_DR1 ) != BKUP_REG_DATA )
     {
-        LOG_I("RTC hasn't been configured, please use <date> command to config.");
+        LOG_I( "RTC hasn't been configured, please use <date> command to config." );
 
 #if defined(SOC_SERIES_STM32F1)
         RTC_Handler.Init.OutPut = RTC_OUTPUTSOURCE_NONE;
@@ -212,39 +217,44 @@ static rt_err_t rt_rtc_config(struct rt_device *dev)
         RTC_Handler.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
         RTC_Handler.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
 #endif
-        if (HAL_RTC_Init(&RTC_Handler) != HAL_OK)
+
+        if( HAL_RTC_Init( &RTC_Handler ) != HAL_OK )
         {
             return -RT_ERROR;
         }
     }
+
 #ifdef SOC_SERIES_STM32F1
     else
     {
         /* F1 series need update by bkp reg datas */
         rt_rtc_f1_bkp_update();
     }
+
 #endif
 
     return RT_EOK;
 }
 
-static rt_err_t rt_rtc_control(rt_device_t dev, int cmd, void *args)
+static rt_err_t rt_rtc_control( rt_device_t dev, int cmd, void *args )
 {
     rt_err_t result = RT_EOK;
-    RT_ASSERT(dev != RT_NULL);
-    switch (cmd)
+    RT_ASSERT( dev != RT_NULL );
+
+    switch( cmd )
     {
     case RT_DEVICE_CTRL_RTC_GET_TIME:
-        *(rt_uint32_t *)args = get_rtc_timestamp();
-        LOG_D("RTC: get rtc_time %x\n", *(rt_uint32_t *)args);
+        *( rt_uint32_t * )args = get_rtc_timestamp();
+        LOG_D( "RTC: get rtc_time %x\n", *( rt_uint32_t * )args );
         break;
 
     case RT_DEVICE_CTRL_RTC_SET_TIME:
-        if (set_rtc_time_stamp(*(rt_uint32_t *)args))
+        if( set_rtc_time_stamp( *( rt_uint32_t * )args ) )
         {
             result = -RT_ERROR;
         }
-        LOG_D("RTC: set rtc_time %x\n", *(rt_uint32_t *)args);
+
+        LOG_D( "RTC: set rtc_time %x\n", *( rt_uint32_t * )args );
         break;
     }
 
@@ -263,15 +273,17 @@ const static struct rt_device_ops rtc_ops =
 };
 #endif
 
-static rt_err_t rt_hw_rtc_register(rt_device_t device, const char *name, rt_uint32_t flag)
+static rt_err_t rt_hw_rtc_register( rt_device_t device, const char *name, rt_uint32_t flag )
 {
-    RT_ASSERT(device != RT_NULL);
+    RT_ASSERT( device != RT_NULL );
 
     rt_rtc_init();
-    if (rt_rtc_config(device) != RT_EOK)
+
+    if( rt_rtc_config( device ) != RT_EOK )
     {
         return -RT_ERROR;
     }
+
 #ifdef RT_USING_DEVICE_OPS
     device->ops         = &rtc_ops;
 #else
@@ -288,21 +300,23 @@ static rt_err_t rt_hw_rtc_register(rt_device_t device, const char *name, rt_uint
     device->user_data   = RT_NULL;
 
     /* register a character device */
-    return rt_device_register(device, name, flag);
+    return rt_device_register( device, name, flag );
 }
 
-int rt_hw_rtc_init(void)
+int rt_hw_rtc_init( void )
 {
     rt_err_t result;
-    result = rt_hw_rtc_register(&rtc, "rtc", RT_DEVICE_FLAG_RDWR);
-    if (result != RT_EOK)
+    result = rt_hw_rtc_register( &rtc, "rtc", RT_DEVICE_FLAG_RDWR );
+
+    if( result != RT_EOK )
     {
-        LOG_E("rtc register err code: %d", result);
+        LOG_E( "rtc register err code: %d", result );
         return result;
     }
-    LOG_D("rtc init success");
+
+    LOG_D( "rtc init success" );
     return RT_EOK;
 }
-INIT_DEVICE_EXPORT(rt_hw_rtc_init);
+INIT_DEVICE_EXPORT( rt_hw_rtc_init );
 
 #endif /* BSP_USING_ONCHIP_RTC */
